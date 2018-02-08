@@ -1,0 +1,348 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Computing neuron network (population) properties after learning</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-02-04"><meta name="DC.source" content="CompNeuNetLearn.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Computing neuron network (population) properties after learning</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Theoretical background and assumptions</a></li><li><a href="#4">No Learning (no strengthening of synapses)</a></li><li><a href="#7">After Learning (strengthening of synapses)</a></li></ul></div><p>The functions needed to compute the properties are in</p><pre class="codeinput">addpath(<span class="string">'Functions\'</span>)
+</pre><h2 id="2">Theoretical background and assumptions</h2><p>After learning, connection weights between neurons responding to the same stimulus are significantly increased. To study the effect of learning and investigating memory states, we consider a network after learning <img src="CompNeuNetLearn_eq09941021013676836398.png" alt="$p$"> stimuli. Each stimulus activated an equal fraction of <img src="CompNeuNetLearn_eq18096895394918367257.png" alt="$f$"> (coding level) neurons of the excitatory pool. We also assume that <img src="CompNeuNetLearn_eq01701387210197164873.png" alt="$f\cdot p < 1$"> to ensure that only a very small fraction of neurons would be active for more than one stimulus (non-overlapping stimuli assumption). We can divide the excitatory population into a selective pool (selective for the stimulus just presented), other stimuli-selective pools (not active for the particular stimulus just presented) and a non-selective pool (neurons that do not respond to any of the <img src="CompNeuNetLearn_eq09941021013676836398.png" alt="$p$"> stimuli presented).</p><p>Inside a selective pool, the synaptic strength is multiplied with a factor <img src="CompNeuNetLearn_eq05320446720518823041.png" alt="$g_+$"> (larger than 1), whereby neurons from different selective pools AND connections from the non-selective pool to selective ones are multiplied with <img src="CompNeuNetLearn_eq09948552134690255626.png" alt="$g_-$"> (smaller than 1). As it has been recorded that the spontaneous activity after learning is almost unaffected, the reduction factor <img src="CompNeuNetLearn_eq09948552134690255626.png" alt="$g_-$"> is given by</p><p><img src="CompNeuNetLearn_eq01573325188863539576.png" alt="$$ g_- = 1- \frac{f(g_+ - 1)}{1-f} $$"></p><p>Furthermore, we account for potential variability in the synaptic strengths by randomly drawing from a Gaussian distribution with mean J and standard deviation <img src="CompNeuNetLearn_eq15021696211694572047.png" alt="$J\Delta$">. Hence, the firing rate of the currently active pool, <img src="CompNeuNetLearn_eq08357262638591589784.png" alt="$\nu_{sel}$"> is determined by the transfer function with <img src="CompNeuNetLearn_eq07066673193961896030.png" alt="$\mu_{sel}$"> and <img src="CompNeuNetLearn_eq09796442579228051618.png" alt="$\sigma^2_{sel}$"> given by:</p><p><img src="CompNeuNetLearn_eq03110314103557328926.png" alt="$$ \mu_{sel} = \left[(p-1)\, f\, g_-\, \nu_+ + f\, g_+\,\nu_{sel} + (1-pf)\,g_-\, \nu_0 \right]J_E\tau_E N_E + \mu_{E,ext} - \mu_{EI} $$"></p><p><img src="CompNeuNetLearn_eq05567717399244387304.png" alt="$$ \sigma^2_{sel} = \lambda\left[(p-1)\, f\, g^2_-\, \nu_+ + f\, g^2_+\,\nu_{sel} + (1-pf)\,g^2_-\, \nu_0 \right]J^2_E\tau_E N_E + \sigma^2_{E,ext} + \sigma^2_{EI} $$"></p><p>with <img src="CompNeuNetLearn_eq18159519122326278682.png" alt="$\lambda=(1+\Delta^2)$">. The firing rate of the neurons selective to an other stimulus, <img src="CompNeuNetLearn_eq06362642208498623057.png" alt="$\nu_+$"> is determined by its transfer function with <img src="CompNeuNetLearn_eq17412280149003940504.png" alt="$\mu_+$"> and <img src="CompNeuNetLearn_eq02116803160669312887.png" alt="$\sigma^2_+$">:</p><p><img src="CompNeuNetLearn_eq14495331266769775765.png" alt="$$ \mu_{+} = \left[((p-2)\, g_- + g_+)f\,\nu_+ + f\, g_-\nu_{sel} + (1-pf)\, g_-\nu_0 \right] J_E\tau_E N_E + \mu_{E,ext} - \mu_{EI}$$"></p><p><img src="CompNeuNetLearn_eq11201679149560047906.png" alt="$$ \sigma^2_{+} = \lambda\left[((p-2)\, g^2_- + g^2_+)f\,\nu_+ + f\, g^2_-\nu_{sel} + (1-pf)\, g^2_-\nu_0 \right] J^2_E\tau_E N_E + \sigma^2_{E,ext} + \sigma^2_{EI} $$"></p><p>Last but not least, the firing rate of the non-selective pool is given through its transfer function parameterized by <img src="CompNeuNetLearn_eq12119676304468673159.png" alt="$\mu_0$"> and <img src="CompNeuNetLearn_eq10817511051058156947.png" alt="$\sigma^2_0$">:</p><p><img src="CompNeuNetLearn_eq12534694358600423754.png" alt="$$ \mu_{0} = \left[(p-1)\, f\, \nu_+ + f\,\nu_{sel} + (1-pf)\, \nu_0 \right]J_E\tau_E N_E + \mu_{E,ext} - \mu_{EI} $$"></p><p><img src="CompNeuNetLearn_eq11523561195651041282.png" alt="$$ \sigma^2_{0} = \lambda\left[(p-1)\, f\, \nu_+ + f\,\nu_{sel} + (1-pf)\, \nu_0 \right]J^2_E\tau_E N_E + \sigma^2_{E,ext} + \sigma^2_{EI} $$"></p><p>Finally, an inhibitory neuron sees an averaged excitatory activity of</p><p><img src="CompNeuNetLearn_eq11500655352635854250.png" alt="$$ \nu_E = f[\nu_{sel} + (p-1)\nu_+] + (1-pf)\nu_0 $$"></p><h2 id="4">No Learning (no strengthening of synapses)</h2><p>If <img src="CompNeuNetLearn_eq05320446720518823041.png" alt="$g_+$"> is 1 (no strengthening of synapses), no matter <img src="CompNeuNetLearn_eq09941021013676836398.png" alt="$p$"> and <img src="CompNeuNetLearn_eq18096895394918367257.png" alt="$f$">, the firing rates would be the same before and after learning. We choose the following parameters:</p><pre class="codeinput">LrnPar.f = 0.01;
+LrnPar.p = 50;
+LrnPar.m = 1.0;
+LrnPar.SDJ = 0.0;
+
+ModPar = [10.0,5.0,-70.0,2.0,-50.0,-70.0,-20.0,5.0,100.0;
+          5.0,5.0,-70.0,2.0,-50.0,-70.0,-20.0,10.0,50.0];
+
+ConPar.R = [0.1,0.6,1.0;0.5,0.5,1.0];
+ConPar.NN = [3000,750,1000];
+ConPar.J = [0.3,-1.5,0.5;1.0,-1.0,0.5];
+
+rx = [6.0,5.0];
+r0 = [1.0,4.0];
+</pre><pre class="codeinput">rates_before_learning = CompRate_aEIF_Net(ModPar,ConPar,r0,rx,1)
+rates_after_learning = CompRate_aEIF_Net_Learn(ModPar,ConPar,LrnPar,[r0(1) r0(1) r0],rx,1)
+</pre><p>As expected, as no strengthing took place (<img src="CompNeuNetLearn_eq05320446720518823041.png" alt="$g_+$"> = <img src="CompNeuNetLearn_eq09948552134690255626.png" alt="$g_-$"> = 1), and therfore no learning happened, the rate implementations give the same results.</p><pre class="codeoutput">
+rates_before_learning =
+
+    0.9934    3.2545
+
+
+rates_after_learning =
+
+    0.9934    0.9934    0.9934    3.2546
+
+</pre><h2 id="7">After Learning (strengthening of synapses)</h2><p>If the synapses between neurons responding to the same stimulus get strengthened (that is, <img src="CompNeuNetLearn_eq02374817212699874052.png" alt="$g_+&gt;1$">), a second stable fixed point may emerge. In order to find a potential memory state, the initial firing rates for the populations need to be increased sufficiently in order to start in the basin of attraction different from the one related to spontaneous activity (corresponds to short, transient stimulus that led to an increase of firing rates).</p><pre class="codeinput">LrnPar.m = 45.2; <span class="comment">% note m &lt; 1/f, otherwise l&lt;0!</span>
+LrnPar.SDJ = 1.0;
+
+r0 = [1.0, 1.0, 1.0, 3.25]; <span class="comment">% (+, sel, 0) and all remaining populations</span>
+rates_spon = CompRate_aEIF_Net_Learn(ModPar,ConPar,LrnPar,r0,rx,0)
+Lambs = CompEigVal_aEIF_Net_Learn(ModPar,ConPar,LrnPar,rates_spon,rx,0);
+
+r0 = [0.25 84.35 0.26 5.1]; <span class="comment">% (+, sel, 0) and all remaining populations</span>
+rates_memo = CompRate_aEIF_Net_Learn(ModPar,ConPar,LrnPar,r0,rx,0)
+Lambs = CompEigVal_aEIF_Net_Learn(ModPar,ConPar,LrnPar,rates_memo,rx,0);
+</pre><pre class="codeoutput">
+rates_spon =
+
+    1.1253    1.1253    0.7819    4.4324
+
+
+rates_memo =
+
+    0.2476   84.3500    0.2586    5.0725
+
+</pre><p>A bifurcation diagram summarizes the number of fixed points and the activity of the attractor states as a function of the intra-pool connection factor (<img src="CompNeuNetLearn_eq05320446720518823041.png" alt="$g_+$">).</p><pre class="codeinput">r0 = [1 1 1 3.25];
+D = 100.0;
+g = linspace(45,46,20);
+[r_spon,r_memo,FPStab] = CompBifDiagram(ModPar,ConPar,LrnPar,r0,rx,g,D);
+
+<span class="comment">% plot bifurcation diagram</span>
+hold <span class="string">all</span>;
+id1_inst = find(FPStab(:,1)&gt;=0);
+id2_inst = find(FPStab(:,2)&gt;=0);
+
+<span class="comment">% plot spontaneous state</span>
+hold <span class="string">all</span>
+<span class="keyword">if</span> ~isempty(id1_inst)
+    plot(g(id1_inst),r_spon(id1_inst,2),<span class="string">'bo'</span>);
+    id1 = setdiff(1:length(g),id1_inst);
+    <span class="keyword">if</span> ~isempty(id1)
+       plot(g(id1),r_spon(id1,2),<span class="string">'bo'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    plot(g,r_spon(:,2),<span class="string">'bo'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+<span class="keyword">end</span>
+<span class="comment">% plot memory state</span>
+<span class="keyword">if</span> ~isempty(id2_inst)
+    plot(g(id2_inst),r_memo(id2_inst,2),<span class="string">'bs'</span>);
+    id2 = setdiff(1:length(g),id2_inst);
+    <span class="keyword">if</span> ~isempty(id2)
+       plot(g(id2),r_memo(id2,2),<span class="string">'bs'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    plot(g,r_memo(:,2),<span class="string">'bs'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+<span class="keyword">end</span>
+
+xlabel(<span class="string">'intra-pool connection factor'</span>)
+ylabel(<span class="string">'activity (#sp/s)'</span>)
+snapnow; close
+</pre><img vspace="5" hspace="5" src="CompNeuNetLearn_01.png" alt=""> <p>Please note, one usually needs to run through different initial values (r0) to ensure that no stable states are missing.</p><p>Moreover, we can also revisite the concept of an energy landscape that allows to visualize the stability of the attractor states. In order to maintain a one-dimensional description, we compute the energy-landscape along the selective population activity and keep the other rates fixed at the values defined by their nullclines:</p><p><img src="CompNeuNetLearn_eq14194044726962222395.png" alt="$$ U(\nu_{sel}) = -\frac{1}{\tau} \int\limits_0^{\nu_{sel}} (F_{sel}(x)-x)\ dx $$"></p><p>where at each point <img src="CompNeuNetLearn_eq08357262638591589784.png" alt="$\nu_{sel}$">, the other rates are given by</p><p><img src="CompNeuNetLearn_eq09464283342422754228.png" alt="$$ 0 = -\nu_+ + F_+(\underline{\nu}) $$"></p><p><img src="CompNeuNetLearn_eq16462028040519563575.png" alt="$$ 0 = -\nu_0 + F_0(\underline{\nu}) $$"></p><p><img src="CompNeuNetLearn_eq06468003269117812589.png" alt="$$ 0 = -\nu_I + F_I(\underline{\nu}). $$"></p><pre class="codeinput">id = 2;
+FP(1,:) = rates_spon;
+FP(2,:) = rates_memo;
+
+values = linspace(0.5,1.2*FP(2,2),400);
+E = CompEnergy_aEIF_Net_Learn(values,ModPar,ConPar,LrnPar,FP,rx,1);
+
+plot(values,E)
+xlabel([<span class="string">'Activity of population '</span> num2str(id) <span class="string">' (sp/s)'</span>])
+ylabel(<span class="string">'Potential landscape (a.u.)'</span>)
+snapnow; close
+</pre><img vspace="5" hspace="5" src="CompNeuNetLearn_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Computing neuron network (population) properties after learning
+%
+%
+%% 
+% The functions needed to compute the properties are in
+addpath('Functions\')
+
+%% Theoretical background and assumptions
+%
+% After learning, connection weights between neurons responding to the same
+% stimulus are significantly increased. To study the effect of learning and 
+% investigating memory states, we consider a network after learning $p$
+% stimuli. Each stimulus activated an equal fraction of $f$ (coding level)
+% neurons of the excitatory pool. We also assume that $f\cdot p < 1$ to
+% ensure that only a very small fraction of neurons would be active for
+% more than one stimulus (non-overlapping stimuli assumption). We can
+% divide the excitatory population into a selective pool (selective for the
+% stimulus just presented), other stimuli-selective pools (not active for
+% the particular stimulus just presented) and a non-selective pool (neurons
+% that do not respond to any of the $p$ stimuli presented).
+
+%%%
+% Inside a selective pool, the synaptic strength is multiplied with a
+% factor $g_+$ (larger than 1), whereby neurons from different selective pools AND
+% connections from the non-selective pool to selective ones are multiplied
+% with $g_-$ (smaller than 1). As it has been recorded that the spontaneous
+% activity after learning is almost unaffected, the reduction factor $g_-$ is given by
+%
+% $$ g_- = 1- \frac{f(g_+ - 1)}{1-f} $$
+%
+% Furthermore, we account for potential variability in the synaptic
+% strengths by randomly drawing from a Gaussian distribution with mean J
+% and standard deviation $J\Delta$. Hence, the firing rate of the currently
+% active pool, $\nu_{sel}$ is determined by the transfer function with
+% $\mu_{sel}$ and $\sigma^2_{sel}$ given by:
+% 
+% $$ \mu_{sel} = \left[(p-1)\, f\, g_-\, \nu_+ + f\, g_+\,\nu_{sel} + (1-pf)\,g_-\, \nu_0 \right]J_E\tau_E N_E + \mu_{E,ext} - \mu_{EI} $$
+%
+% $$ \sigma^2_{sel} = \lambda\left[(p-1)\, f\, g^2_-\, \nu_+ + f\, g^2_+\,\nu_{sel} + (1-pf)\,g^2_-\, \nu_0 \right]J^2_E\tau_E N_E + \sigma^2_{E,ext} + \sigma^2_{EI} $$
+%
+% with $\lambda=(1+\Delta^2)$. The firing rate of the neurons selective to an other stimulus, $\nu_+$ is
+% determined by its transfer function with $\mu_+$ and $\sigma^2_+$:
+%
+% $$ \mu_{+} = \left[((p-2)\, g_- + g_+)f\,\nu_+ + f\, g_-\nu_{sel} + (1-pf)\, g_-\nu_0 \right] J_E\tau_E N_E + \mu_{E,ext} - \mu_{EI}$$
+%
+% $$ \sigma^2_{+} = \lambda\left[((p-2)\, g^2_- + g^2_+)f\,\nu_+ + f\, g^2_-\nu_{sel} + (1-pf)\, g^2_-\nu_0 \right] J^2_E\tau_E N_E + \sigma^2_{E,ext} + \sigma^2_{EI} $$
+%
+% Last but not least, the firing rate of the non-selective pool is given
+% through its transfer function parameterized by $\mu_0$ and $\sigma^2_0$:
+%
+% $$ \mu_{0} = \left[(p-1)\, f\, \nu_+ + f\,\nu_{sel} + (1-pf)\, \nu_0 \right]J_E\tau_E N_E + \mu_{E,ext} - \mu_{EI} $$
+%
+% $$ \sigma^2_{0} = \lambda\left[(p-1)\, f\, \nu_+ + f\,\nu_{sel} + (1-pf)\, \nu_0 \right]J^2_E\tau_E N_E + \sigma^2_{E,ext} + \sigma^2_{EI} $$
+%
+% Finally, an inhibitory neuron sees an averaged excitatory activity of 
+%
+% $$ \nu_E = f[\nu_{sel} + (p-1)\nu_+] + (1-pf)\nu_0 $$
+
+%% No Learning (no strengthening of synapses)
+%
+% If $g_+$ is 1 (no strengthening of synapses), no matter $p$ and $f$, the
+% firing rates would be the same before and after learning. 
+% We choose the following parameters:
+%
+LrnPar.f = 0.01;
+LrnPar.p = 50;
+LrnPar.m = 1.0;
+LrnPar.SDJ = 0.0;  
+
+ModPar = [10.0,5.0,-70.0,2.0,-50.0,-70.0,-20.0,5.0,100.0;
+          5.0,5.0,-70.0,2.0,-50.0,-70.0,-20.0,10.0,50.0];
+      
+ConPar.R = [0.1,0.6,1.0;0.5,0.5,1.0];
+ConPar.NN = [3000,750,1000];
+ConPar.J = [0.3,-1.5,0.5;1.0,-1.0,0.5];
+
+rx = [6.0,5.0];
+r0 = [1.0,4.0];
+
+%%%
+% 
+rates_before_learning = CompRate_aEIF_Net(ModPar,ConPar,r0,rx,1)
+rates_after_learning = CompRate_aEIF_Net_Learn(ModPar,ConPar,LrnPar,[r0(1) r0(1) r0],rx,1)
+
+%%%
+% As expected, as no strengthing took place ($g_+$ = $g_-$ = 1), and therfore
+% no learning happened, the rate implementations give the same results.
+
+%% After Learning (strengthening of synapses)
+%
+% If the synapses between neurons responding to the same stimulus get
+% strengthened (that is, $g_+>1$), a second stable fixed point may emerge. 
+% In order to find a potential memory state, the initial firing rates for
+% the populations need to be increased sufficiently in order to start in
+% the basin of attraction different from the one related to spontaneous
+% activity (corresponds to short, transient stimulus that led to an 
+% increase of firing rates). 
+%
+LrnPar.m = 45.2; % note m < 1/f, otherwise l<0!
+LrnPar.SDJ = 1.0;
+
+r0 = [1.0, 1.0, 1.0, 3.25]; % (+, sel, 0) and all remaining populations
+rates_spon = CompRate_aEIF_Net_Learn(ModPar,ConPar,LrnPar,r0,rx,0)
+Lambs = CompEigVal_aEIF_Net_Learn(ModPar,ConPar,LrnPar,rates_spon,rx,0);
+
+r0 = [0.25 84.35 0.26 5.1]; % (+, sel, 0) and all remaining populations
+rates_memo = CompRate_aEIF_Net_Learn(ModPar,ConPar,LrnPar,r0,rx,0)
+Lambs = CompEigVal_aEIF_Net_Learn(ModPar,ConPar,LrnPar,rates_memo,rx,0);
+
+%%
+% A bifurcation diagram summarizes the number of fixed points and the
+% activity of the attractor states as a function of the intra-pool
+% connection factor ($g_+$).
+%
+r0 = [1 1 1 3.25];
+D = 100.0;
+g = linspace(45,46,20);
+[r_spon,r_memo,FPStab] = CompBifDiagram(ModPar,ConPar,LrnPar,r0,rx,g,D);
+
+% plot bifurcation diagram
+hold all;
+id1_inst = find(FPStab(:,1)>=0);
+id2_inst = find(FPStab(:,2)>=0);
+
+% plot spontaneous state
+hold all
+if ~isempty(id1_inst)
+    plot(g(id1_inst),r_spon(id1_inst,2),'bo');
+    id1 = setdiff(1:length(g),id1_inst);
+    if ~isempty(id1)
+       plot(g(id1),r_spon(id1,2),'bo','MarkerFaceColor','b'); 
+    end
+else
+    plot(g,r_spon(:,2),'bo','MarkerFaceColor','b');
+end
+% plot memory state
+if ~isempty(id2_inst)
+    plot(g(id2_inst),r_memo(id2_inst,2),'bs');
+    id2 = setdiff(1:length(g),id2_inst);
+    if ~isempty(id2)
+       plot(g(id2),r_memo(id2,2),'bs','MarkerFaceColor','b'); 
+    end
+else
+    plot(g,r_memo(:,2),'bs','MarkerFaceColor','b');
+end
+
+xlabel('intra-pool connection factor')
+ylabel('activity (#sp/s)')
+snapnow; close
+
+%%
+% Please note, one usually needs to run through different initial values
+% (r0) to ensure that no stable states are missing.
+%
+% Moreover, we can also revisite the concept of an energy landscape that 
+% allows to visualize the stability of the attractor states. In order to 
+% maintain a one-dimensional description, we compute the energy-landscape
+% along the selective population activity and keep the other rates fixed at
+% the values defined by their nullclines:
+%
+% $$ U(\nu_{sel}) = -\frac{1}{\tau} \int\limits_0^{\nu_{sel}} (F_{sel}(x)-x)\ dx $$
+%
+%%%
+% where at each point $\nu_{sel}$, the other rates are given by
+%
+% $$ 0 = -\nu_+ + F_+(\underline{\nu}) $$
+%
+% $$ 0 = -\nu_0 + F_0(\underline{\nu}) $$
+%
+% $$ 0 = -\nu_I + F_I(\underline{\nu}). $$
+%
+id = 2;
+FP(1,:) = rates_spon;
+FP(2,:) = rates_memo;
+
+values = linspace(0.5,1.2*FP(2,2),400);
+E = CompEnergy_aEIF_Net_Learn(values,ModPar,ConPar,LrnPar,FP,rx,1);
+
+plot(values,E)
+xlabel(['Activity of population ' num2str(id) ' (sp/s)'])
+ylabel('Potential landscape (a.u.)')
+snapnow; close
+
+##### SOURCE END #####
+--></body></html>

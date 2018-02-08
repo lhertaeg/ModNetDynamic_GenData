@@ -1,0 +1,1313 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Statistical analysis of the 'SimpAdEx' model parameters for mGluR3</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-02-06"><meta name="DC.source" content="AnalysisModPar_mGlu.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Statistical analysis of the 'SimpAdEx' model parameters for mGluR3</h1><!--introduction--><p>This worksheet contains all code and further explanations to perform statistical analyses of the model parameters for mGluR3</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Loading and processing data</a></li><li><a href="#4">Analysis of WT vs. KO data</a></li><li><a href="#10">Analysis of WT (control) vs. KO (control) data</a></li><li><a href="#15">Analysis of WT (agonist) vs. KO (agonist) data</a></li><li><a href="#20">Analysis of WT (control) vs. WT (agonist) data</a></li><li><a href="#21">Analysis of KO (control) vs. KO (agonist) data</a></li></ul></div><h2 id="1">Loading and processing data</h2><p>We load the data containing all parameters</p><pre class="codeinput">load(<span class="string">'EverythingInOneFile34.mat'</span>);
+</pre><p>For the subsequent analyses, we only need some of the information. Therefore, we generate a new data structure / data array:</p><pre class="codeinput">pharma = reshape(pharma,[690 1]);
+type = reshape(type,[690 1]);
+LoV = [<span class="string">"genotype"</span>,<span class="string">"age2"</span>,<span class="string">"cell_type2"</span>,<span class="string">"layer"</span>,<span class="string">"species"</span>,<span class="string">"pharma"</span>,<span class="string">"type"</span>];
+
+<span class="keyword">for</span> i=1:690
+    <span class="keyword">for</span> j=1:size(LoV,2)
+        <span class="keyword">if</span> eval(<span class="string">"~isa("</span> + LoV(j) + <span class="string">"{"</span> + i + <span class="string">",1},'char')"</span>)
+            eval(LoV(j) + <span class="string">"{"</span> + i + <span class="string">",1}='unknown';"</span>)
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+Data{:,1} = genotype;
+Data{:,2} = age2;
+Data{:,3} = cell_type2;
+Data{:,4} = layer;
+Data{:,5} = species;
+Data{:,6} = pharma;
+Data{:,7} = type;
+Data{:,8} = C;
+Data{:,9} = gL;
+Data{:,10} = tau;
+Data{:,11} = EL;
+Data{:,12} = sf;
+Data{:,13} = Vth;
+Data{:,14} = Vr;
+Data{:,15} = Vup;
+Data{:,16} = tcw;
+Data{:,17} = b;
+</pre><p>We create new data frame that contains mGlu-data only</p><pre class="codeinput">ind_WT = [ind_mGluR3WT_L3_PC',ind_mGluR3WT_L5_pp',ind_mGluR3WT_BB'];
+ind_KO = [ind_mGluR3KO_L3_PC',ind_mGluR3KO_L5_nn',ind_mGluR3KO_FS'];
+ind_KO_cont = [ind_mGluR3KO_L3_PC_Glu_control',ind_mGluR3KO_L5_nn_Glu_control',ind_mGluR3KO_FS_Glu_control'];
+ind_KO_agon = [ind_mGluR3KO_L3_PC_Glu_agonist',ind_mGluR3KO_L5_nn_Glu_agonist',ind_mGluR3KO_FS_Glu_agonist'];
+ind_WT_agon = [ind_mGluR3WT_L3_PC_Glu_agonist',ind_mGluR3WT_L5_pp_Glu_agonist',ind_mGluR3WT_BB_Glu_agonist'];
+ind_WT_cont = [ind_mGluR3WT_L3_PC_Glu_control',ind_mGluR3WT_L5_pp_Glu_control',ind_mGluR3WT_BB_Glu_control'];
+
+Data_WT = Data(:,[2:5,8:17]);
+Data_WT = cellfun(@(x) x(ind_WT), Data_WT, <span class="string">'UniformOutput'</span>, false);
+Data_KO = Data(:,[2:5,8:17]);
+Data_KO = cellfun(@(x) x(ind_KO), Data_KO, <span class="string">'UniformOutput'</span>, false);
+Data_WT_cont = Data(:,[2:5,8:17]);
+Data_WT_cont = cellfun(@(x) x(ind_WT_cont), Data_WT_cont, <span class="string">'UniformOutput'</span>, false);
+Data_KO_cont = Data(:,[2:5,8:17]);
+Data_KO_cont = cellfun(@(x) x(ind_KO_cont), Data_KO_cont, <span class="string">'UniformOutput'</span>, false);
+Data_WT_agon = Data(:,[2:5,8:17]);
+Data_WT_agon = cellfun(@(x) x(ind_WT_agon), Data_WT_agon, <span class="string">'UniformOutput'</span>, false);
+Data_KO_agon = Data(:,[2:5,8:17]);
+Data_KO_agon = cellfun(@(x) x(ind_KO_agon), Data_KO_agon, <span class="string">'UniformOutput'</span>, false);
+ColNam = [<span class="string">"age"</span>,<span class="string">"cell_type"</span>,<span class="string">"layer"</span>,<span class="string">"species"</span>,<span class="string">"C"</span>,<span class="string">"gL"</span>,<span class="string">"tau"</span>,<span class="string">"EL"</span>,<span class="string">"sf"</span>,<span class="string">"Vth"</span>,<span class="string">"Vr"</span>,<span class="string">"Vup"</span>,<span class="string">"tcw"</span>,<span class="string">"b"</span>];
+</pre><h2 id="4">Analysis of WT vs. KO data</h2><p>In a first step we look at the number of data points with respect to specific conditions (age, cell type, layer, species)</p><pre class="codeinput">N_WT = size(Data_WT{1,1},1);
+disp([<span class="string">'The WT data set contains '</span> num2str(N_WT) <span class="string">' data points'</span>])
+class_age_WT = unique(Data_WT{1,1});
+disp([<span class="string">'The following age categories are present for WT: '</span> strjoin(class_age_WT,<span class="string">', '</span>)])
+class_celltype_WT = unique(Data_WT{1,2});
+disp([<span class="string">'The following cell types are present for control: '</span> strjoin(class_celltype_WT,<span class="string">', '</span>)])
+disp([<span class="string">'BB: '</span> num2str(length(ind_mGluR3WT_BB)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3WT_L3_PC)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3WT_L5_pp))])
+class_layer_WT = unique(Data_WT{1,3});
+disp([<span class="string">'The following layers are present for WT: '</span>, strjoin(class_layer_WT,<span class="string">', '</span>)])
+class_species_WT = unique(Data_WT{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_WT,<span class="string">', '</span>)])
+disp([<span class="string">' '</span>])
+N_KO = size(Data_KO{1,1},1);
+disp([<span class="string">'The KO data set contains '</span> num2str(N_KO) <span class="string">' data points'</span>])
+class_age_KO = unique(Data_KO{1,1});
+disp([<span class="string">'The following age categories are present for KO: '</span> strjoin(class_age_KO,<span class="string">', '</span>)])
+class_celltype_KO = unique(Data_KO{1,2});
+disp([<span class="string">'The following cell types are present for KO: '</span> strjoin(class_celltype_KO,<span class="string">', '</span>)])
+disp([<span class="string">'FS: '</span> num2str(length(ind_mGluR3KO_FS)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3KO_L3_PC)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3KO_L5_nn))])
+class_layer_KO = unique(Data_KO{1,3});
+disp([<span class="string">'The following layers are present for KO: '</span>, strjoin(class_layer_KO,<span class="string">', '</span>)])
+class_species_KO = unique(Data_KO{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_KO,<span class="string">', '</span>)])
+</pre><pre class="codeoutput">The WT data set contains 15 data points
+The following age categories are present for WT: old, unknown
+The following cell types are present for control: BB, PC
+BB: 2, L3-PC: 4, L5-PC: 9
+The following layers are present for WT: L3, L5
+The recordings come from the follwoing species: mouse
+ 
+The KO data set contains 19 data points
+The following age categories are present for KO: old
+The following cell types are present for KO: PC
+FS: 0, L3-PC: 3, L5-PC: 16
+The following layers are present for KO: L3, L5
+The recordings come from the follwoing species: mouse
+</pre><p>Unfortunately, the low number of L3, FS/BT cells does not allow for further analyses. Therefor we will focus on L5 pyramidal cells</p><pre class="codeinput">Data_WT_L5 = Data(:,[2:5,8:17]);
+Data_WT_L5 = cellfun(@(x) x(ind_mGluR3WT_L5_pp'), Data_WT_L5, <span class="string">'UniformOutput'</span>, false);
+Data_KO_L5 = Data(:,[2:5,8:17]);
+Data_KO_L5 = cellfun(@(x) x(ind_mGluR3KO_L5_nn'), Data_KO_L5, <span class="string">'UniformOutput'</span>, false);
+</pre><p>We generate the model parameter histograms to eyeball the sample distributions and to get a first impression of differences between WT and KO.</p><pre class="codeinput">figure()
+<span class="keyword">for</span> i=1:10
+    subplot(2,5,i)
+    EMin = min([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    EMax = max([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    edges = linspace(EMin,EMax,8);
+    histogram(Data_WT_L5{1,4+i},edges,<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'Normalization'</span>,<span class="string">'pdf'</span>)
+    hold <span class="string">on</span>;
+    histogram(Data_KO_L5{1,4+i},edges,<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'Normalization'</span>,<span class="string">'pdf'</span>)
+    [f1,x1] = ksdensity(Data_WT_L5{1,4+i});
+    [f2,x2] = ksdensity(Data_KO_L5{1,4+i});
+    plot(x1,f1,<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,2)
+    plot(x2,f2,<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,2)
+    title(ColNam(4+i))
+    xlim([EMin,EMax])
+<span class="keyword">end</span>
+set(gcf,<span class="string">'units'</span>,<span class="string">'centimeters'</span>,<span class="string">'position'</span>,[1,1,25,15])
+snapnow, close
+</pre><img vspace="5" hspace="5" src="AnalysisModPar_mGlu_01.png" alt=""> <p>By eyeball inspection, most distributions seem to be nonnormal. Also, the distributions of WT and KO conditions very often look similar (even though this is hard to tell given the low number of datat points). We cannot expect hugh differences in mean, median or standard deviation. This can also be seen in a boxplot summary:</p><pre class="codeinput">figure()
+<span class="keyword">for</span> i=1:10
+    subplot(2,5,i)
+    Val = [Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}];
+    Label = [ones(1,length(Data_WT_L5{1,4+i})),2*ones(1,length(Data_KO_L5{1,4+i}))];
+    boxplot(Val,Label,<span class="string">'Labels'</span>,{<span class="string">'WT'</span>,<span class="string">'KO'</span>},<span class="string">'Whisker'</span>,10)<span class="comment">%,'Notch','on')hold on</span>
+    hold <span class="string">on</span>;
+    plot([mean(Val(Label==1)),mean(Val(Label==2))], <span class="string">'xr'</span>)
+    title(ColNam(4+i))
+<span class="keyword">end</span>
+set(gcf,<span class="string">'units'</span>,<span class="string">'centimeters'</span>,<span class="string">'position'</span>,[1,1,25,15])
+snapnow; close;
+</pre><img vspace="5" hspace="5" src="AnalysisModPar_mGlu_02.png" alt=""> <p>We need to check if the mean and variance of the WT and KO distributions are significantly different. We do so by running a two-sample t-test (in case the distributions are halfway normal) and a Wilcoxon rank sum test (for non-normal distributions) for the mean, and a Bartlett&#8217;s, Brown-Forsythe and Levene&#8217;s test for the variance.</p><pre class="codeinput">H_mean_t = zeros(1,10);
+H_mean_rank = zeros(1,10);
+H_var_brown = zeros(1,10);
+H_var_levene = zeros(1,10);
+H_var_bart = zeros(1,10);
+<span class="keyword">for</span> i=1:10
+    x = Data_WT_L5{1,4+i};
+    y = Data_KO_L5{1,4+i};
+    <span class="comment">% Check mean ...</span>
+    [h,~,ci,~] = ttest2(x,y,<span class="string">'VarType'</span>,<span class="string">'unequal'</span>);
+    H_mean_t(i) = h;
+    [~,h] = ranksum(x,y);
+    H_mean_rank(i) = h;
+    <span class="comment">% Check variance ...</span>
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]',<span class="string">'TestType'</span>,<span class="string">'BrownForsythe'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+    <span class="keyword">if</span> p&lt;0.05
+        H_var_brown(i) = 1;
+    <span class="keyword">end</span>
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]',<span class="string">'TestType'</span>,<span class="string">'LeveneQuadratic'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+    <span class="keyword">if</span> p&lt;0.05
+        H_var_levene(i) = 1;
+    <span class="keyword">end</span>
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]',<span class="string">'TestType'</span>,<span class="string">'Bartlett'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+    <span class="keyword">if</span> p&lt;0.05
+        H_var_bart(i) = 1;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+id1 = find(H_mean_t==1);
+id2 = find(H_mean_rank==1);
+
+<span class="keyword">if</span> (isempty(id1) &amp;&amp; isempty(id2))
+    disp(<span class="string">'No mean is significantly different'</span>)
+<span class="keyword">else</span>
+    <span class="keyword">for</span> i=1:length(id1)
+        disp(join([<span class="string">'According to a two-sample t-test, the mean of the'</span> ColNam(4+id1(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> i=1:length(id2)
+        disp(join([<span class="string">'According to a Wilcoxon rank sum test, the mean of the'</span> ColNam(4+id2(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+id1 = find(H_var_bart==1);
+id2 = find(H_var_brown==1);
+id3 = find(H_var_levene==1);
+
+<span class="keyword">if</span> (isempty(id1) &amp;&amp; isempty(id2))
+    disp(<span class="string">'No varaince is significantly different'</span>)
+<span class="keyword">else</span>
+    <span class="keyword">for</span> i=1:length(id1)
+        disp(join([<span class="string">'According to a Bartlett&#8217;s test, the variance of the'</span> ColNam(4+id1(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> i=1:length(id2)
+        disp(join([<span class="string">'According to a Brown-Forsythe test, the variance of the'</span> ColNam(4+id2(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> i=1:length(id3)
+        disp(join([<span class="string">'According to a Levene&#8217;s test, the variance of the'</span> ColNam(4+id3(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">According to a two-sample t-test, the mean of the EL distribution is significantly different between WT and KO
+According to a Wilcoxon rank sum test, the mean of the EL distribution is significantly different between WT and KO
+According to a Wilcoxon rank sum test, the mean of the Vr distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the gL distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the sf distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the Vr distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the Vup distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the tcw distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the b distribution is significantly different between WT and KO
+According to a Brown-Forsythe test, the variance of the b distribution is significantly different between WT and KO
+According to a Levene&#8217;s test, the variance of the b distribution is significantly different between WT and KO
+</pre><p>As some of the parameters are not independent, and in general the distribution can be regarded as multivariate, we perform a MANOVA test (under the probably wrong assumptions that the data comes from a n-dim normal distribution). As we have two groups (WT and KO), MANOVA is equivalent and the test reduces to Hotelling's T-square.</p><pre class="codeinput">x = []; y = [];
+<span class="keyword">for</span> i=[1,2,4,5,6,7,9,10]
+    x = [x Data_WT_L5{1,4+i}'];
+    y = [y Data_KO_L5{1,4+i}'];
+<span class="keyword">end</span>
+
+z = [x;y];
+group = [zeros(1,size(x,1)),ones(1,size(y,1))];
+[~,p,~] = manova1(z,group);
+[~,P] = HotellingsT2(x,y,0.05,0);
+
+<span class="keyword">if</span> (p&lt;0.05 &amp;&amp; P&lt;0.05)
+    disp(<span class="string">"According to the MANOVA/Hotellings T2 test, the vector sample means are significantly different."</span>)
+<span class="keyword">elseif</span> (p&gt;=0.05 &amp;&amp; P&lt;0.05)
+    disp(<span class="string">"According to the MANOVA test, the vector of means of WT and KO conditions are not significantly different."</span>)
+<span class="keyword">elseif</span> (p&lt;0.05 &amp;&amp; P&gt;=0.05)
+    disp(<span class="string">"According to the Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different."</span>)
+<span class="keyword">else</span>
+    disp(<span class="string">"According to the MANOVA/Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different."</span>)
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">According to the MANOVA/Hotellings T2 test, the vector sample means are significantly different.
+</pre><h2 id="10">Analysis of WT (control) vs. KO (control) data</h2><p>In a first step we look at the number of data points with respect to specific conditions (age, cell type, layer, species)</p><pre class="codeinput">N_WT = size(Data_WT_cont{1,1},1);
+disp([<span class="string">'The WT data set contains '</span> num2str(N_WT) <span class="string">' data points'</span>])
+class_age_WT = unique(Data_WT_cont{1,1});
+disp([<span class="string">'The following age categories are present for WT: '</span> strjoin(class_age_WT,<span class="string">', '</span>)])
+class_celltype_WT = unique(Data_WT_cont{1,2});
+disp([<span class="string">'The following cell types are present for control: '</span> strjoin(class_celltype_WT,<span class="string">', '</span>)])
+disp([<span class="string">'BB: '</span> num2str(length(ind_mGluR3WT_BB_Glu_control)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3WT_L3_PC_Glu_control)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3WT_L5_pp_Glu_control))])
+class_layer_WT = unique(Data_WT_cont{1,3});
+disp([<span class="string">'The following layers are present for WT: '</span>, strjoin(class_layer_WT,<span class="string">', '</span>)])
+class_species_WT = unique(Data_WT_cont{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_WT,<span class="string">', '</span>)])
+disp([<span class="string">' '</span>])
+N_KO = size(Data_KO_cont{1,1},1);
+disp([<span class="string">'The KO data set contains '</span> num2str(N_KO) <span class="string">' data points'</span>])
+class_age_KO = unique(Data_KO_cont{1,1});
+disp([<span class="string">'The following age categories are present for KO: '</span> strjoin(class_age_KO,<span class="string">', '</span>)])
+class_celltype_KO = unique(Data_KO_cont{1,2});
+disp([<span class="string">'The following cell types are present for KO: '</span> strjoin(class_celltype_KO,<span class="string">', '</span>)])
+disp([<span class="string">'FS: '</span> num2str(length(ind_mGluR3KO_FS_Glu_control)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3KO_L3_PC_Glu_control)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3KO_L5_nn_Glu_control))])
+class_layer_KO = unique(Data_KO_cont{1,3});
+disp([<span class="string">'The following layers are present for KO: '</span>, strjoin(class_layer_KO,<span class="string">', '</span>)])
+class_species_KO = unique(Data_KO_cont{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_KO,<span class="string">', '</span>)])
+</pre><pre class="codeoutput">The WT data set contains 25 data points
+The following age categories are present for WT: old, unknown
+The following cell types are present for control: BB, L3, L5, PC, unknown
+BB: 3, L3-PC: 6, L5-PC: 16
+The following layers are present for WT: L3, L3-5, L5, unknown
+The recordings come from the follwoing species: mouse, unknown
+ 
+The KO data set contains 13 data points
+The following age categories are present for KO: old, unknown
+The following cell types are present for KO: FS, PC, unknown
+FS: 2, L3-PC: 1, L5-PC: 10
+The following layers are present for KO: L3, L3-5, unknown
+The recordings come from the follwoing species: mouse, unknown
+</pre><p>Unfortunately, the low number of L3, FS/BT cells does not allow for further analyses. Therefor we will focus on L5 pyramidal cells</p><pre class="codeinput">Data_WT_L5 = Data(:,[2:5,8:17]);
+Data_WT_L5 = cellfun(@(x) x(ind_mGluR3WT_L5_pp_Glu_control'), Data_WT_L5, <span class="string">'UniformOutput'</span>, false);
+Data_KO_L5 = Data(:,[2:5,8:17]);
+Data_KO_L5 = cellfun(@(x) x(ind_mGluR3KO_L5_nn_Glu_control'), Data_KO_L5, <span class="string">'UniformOutput'</span>, false);
+</pre><p>We generate the model parameter histograms to eyeball the sample distributions and to get a first impression of differences between WT and KO, and summarize the mean, median and std in a boxplot:</p><pre class="codeinput">figure()
+<span class="keyword">for</span> i=1:10
+    subplot(2,5,i)
+    EMin = min([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    EMax = max([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    edges = linspace(EMin,EMax,8);
+    histogram(Data_WT_L5{1,4+i},edges,<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'Normalization'</span>,<span class="string">'pdf'</span>)
+    hold <span class="string">on</span>;
+    histogram(Data_KO_L5{1,4+i},edges,<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'Normalization'</span>,<span class="string">'pdf'</span>)
+    [f1,x1] = ksdensity(Data_WT_L5{1,4+i});
+    [f2,x2] = ksdensity(Data_KO_L5{1,4+i});
+    plot(x1,f1,<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,2)
+    plot(x2,f2,<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,2)
+    title(ColNam(4+i))
+    xlim([EMin,EMax])
+<span class="keyword">end</span>
+set(gcf,<span class="string">'units'</span>,<span class="string">'centimeters'</span>,<span class="string">'position'</span>,[1,1,25,15])
+snapnow, close
+
+figure()
+<span class="keyword">for</span> i=1:10
+    subplot(2,5,i)
+    Val = [Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}];
+    Label = [ones(1,length(Data_WT_L5{1,4+i})),2*ones(1,length(Data_KO_L5{1,4+i}))];
+    boxplot(Val,Label,<span class="string">'Labels'</span>,{<span class="string">'WT'</span>,<span class="string">'KO'</span>},<span class="string">'Whisker'</span>,10)<span class="comment">%,'Notch','on')hold on</span>
+    hold <span class="string">on</span>;
+    plot([mean(Val(Label==1)),mean(Val(Label==2))], <span class="string">'xr'</span>)
+    title(ColNam(4+i))
+<span class="keyword">end</span>
+set(gcf,<span class="string">'units'</span>,<span class="string">'centimeters'</span>,<span class="string">'position'</span>,[1,1,25,15])
+snapnow; close;
+</pre><img vspace="5" hspace="5" src="AnalysisModPar_mGlu_03.png" alt=""> <img vspace="5" hspace="5" src="AnalysisModPar_mGlu_04.png" alt=""> <p>We need to check if the mean and variance of the WT and KO distributions are significantly different. We do so by running a two-sample t-test (in case the distributions are halfway normal) and a Wilcoxon rank sum test (for non-normal distributions) for the mean, and a Bartlett&#8217;s, Brown-Forsythe and Levene&#8217;s test for the variance.</p><pre class="codeinput">H_mean_t = zeros(1,10);
+H_mean_rank = zeros(1,10);
+H_var_brown = zeros(1,10);
+H_var_levene = zeros(1,10);
+H_var_bart = zeros(1,10);
+<span class="keyword">for</span> i=1:10
+    x = Data_WT_L5{1,4+i};
+    y = Data_KO_L5{1,4+i};
+    <span class="comment">% Check mean ...</span>
+    [h,~,ci,~] = ttest2(x,y,<span class="string">'VarType'</span>,<span class="string">'unequal'</span>);
+    H_mean_t(i) = h;
+    [~,h] = ranksum(x,y);
+    H_mean_rank(i) = h;
+    <span class="comment">% Check variance ...</span>
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]',<span class="string">'TestType'</span>,<span class="string">'BrownForsythe'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+    <span class="keyword">if</span> p&lt;0.05
+        H_var_brown(i) = 1;
+    <span class="keyword">end</span>
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]',<span class="string">'TestType'</span>,<span class="string">'LeveneQuadratic'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+    <span class="keyword">if</span> p&lt;0.05
+        H_var_levene(i) = 1;
+    <span class="keyword">end</span>
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]',<span class="string">'TestType'</span>,<span class="string">'Bartlett'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+    <span class="keyword">if</span> p&lt;0.05
+        H_var_bart(i) = 1;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+id1 = find(H_mean_t==1);
+id2 = find(H_mean_rank==1);
+
+<span class="keyword">if</span> (isempty(id1) &amp;&amp; isempty(id2))
+    disp(<span class="string">'No mean is significantly different'</span>)
+<span class="keyword">else</span>
+    <span class="keyword">for</span> i=1:length(id1)
+        disp(join([<span class="string">'According to a two-sample t-test, the mean of the'</span> ColNam(4+id1(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> i=1:length(id2)
+        disp(join([<span class="string">'According to a Wilcoxon rank sum test, the mean of the'</span> ColNam(4+id2(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+id1 = find(H_var_bart==1);
+id2 = find(H_var_brown==1);
+id3 = find(H_var_levene==1);
+
+<span class="keyword">if</span> (isempty(id1) &amp;&amp; isempty(id2))
+    disp(<span class="string">'No varaince is significantly different'</span>)
+<span class="keyword">else</span>
+    <span class="keyword">for</span> i=1:length(id1)
+        disp(join([<span class="string">'According to a Bartlett&#8217;s test, the variance of the'</span> ColNam(4+id1(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> i=1:length(id2)
+        disp(join([<span class="string">'According to a Brown-Forsythe test, the variance of the'</span> ColNam(4+id2(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> i=1:length(id3)
+        disp(join([<span class="string">'According to a Levene&#8217;s test, the variance of the'</span> ColNam(4+id3(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">No mean is significantly different
+According to a Bartlett&#8217;s test, the variance of the C distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the EL distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the sf distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the Vr distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the Vup distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the tcw distribution is significantly different between WT and KO
+According to a Brown-Forsythe test, the variance of the C distribution is significantly different between WT and KO
+According to a Brown-Forsythe test, the variance of the EL distribution is significantly different between WT and KO
+</pre><p>As some of the parameters are not independent, and in general the distribution can be regarded as multivariate, we perform a MANOVA test (under the probably wrong assumptions that the data comes from a n-dim normal distribution). As we have two groups (WT and KO), MANOVA is equivalent and the test reduces to Hotelling's T-square.</p><pre class="codeinput">x = []; y = [];
+<span class="keyword">for</span> i=[1,2,4,5,6,7,9,10]
+    x = [x Data_WT_L5{1,4+i}'];
+    y = [y Data_KO_L5{1,4+i}'];
+<span class="keyword">end</span>
+
+z = [x;y];
+group = [zeros(1,size(x,1)),ones(1,size(y,1))];
+[~,p,~] = manova1(z,group);
+[~,P] = HotellingsT2(x,y,0.05,0);
+
+<span class="keyword">if</span> (p&lt;0.05 &amp;&amp; P&lt;0.05)
+    disp(<span class="string">"According to the MANOVA/Hotellings T2 test, the vector sample means are significantly different."</span>)
+<span class="keyword">elseif</span> (p&gt;=0.05 &amp;&amp; P&lt;0.05)
+    disp(<span class="string">"According to the MANOVA test, the vector of means of WT and KO conditions are not significantly different."</span>)
+<span class="keyword">elseif</span> (p&lt;0.05 &amp;&amp; P&gt;=0.05)
+    disp(<span class="string">"According to the Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different."</span>)
+<span class="keyword">else</span>
+    disp(<span class="string">"According to the MANOVA/Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different."</span>)
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">According to the MANOVA/Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different.
+</pre><h2 id="15">Analysis of WT (agonist) vs. KO (agonist) data</h2><p>In a first step we look at the number of data points with respect to specific conditions (age, cell type, layer, species)</p><pre class="codeinput">N_WT = size(Data_WT_agon{1,1},1);
+disp([<span class="string">'The WT data set contains '</span> num2str(N_WT) <span class="string">' data points'</span>])
+class_age_WT = unique(Data_WT_agon{1,1});
+disp([<span class="string">'The following age categories are present for WT: '</span> strjoin(class_age_WT,<span class="string">', '</span>)])
+class_celltype_WT = unique(Data_WT_agon{1,2});
+disp([<span class="string">'The following cell types are present for control: '</span> strjoin(class_celltype_WT,<span class="string">', '</span>)])
+disp([<span class="string">'BB: '</span> num2str(length(ind_mGluR3WT_BB_Glu_agonist)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3WT_L3_PC_Glu_agonist)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3WT_L5_pp_Glu_agonist))])
+class_layer_WT = unique(Data_WT_agon{1,3});
+disp([<span class="string">'The following layers are present for WT: '</span>, strjoin(class_layer_WT,<span class="string">', '</span>)])
+class_species_WT = unique(Data_WT_agon{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_WT,<span class="string">', '</span>)])
+disp([<span class="string">' '</span>])
+N_KO = size(Data_KO_agon{1,1},1);
+disp([<span class="string">'The KO data set contains '</span> num2str(N_KO) <span class="string">' data points'</span>])
+class_age_KO = unique(Data_KO_agon{1,1});
+disp([<span class="string">'The following age categories are present for KO: '</span> strjoin(class_age_KO,<span class="string">', '</span>)])
+class_celltype_KO = unique(Data_KO_agon{1,2});
+disp([<span class="string">'The following cell types are present for KO: '</span> strjoin(class_celltype_KO,<span class="string">', '</span>)])
+disp([<span class="string">'FS: '</span> num2str(length(ind_mGluR3KO_FS_Glu_agonist)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3KO_L3_PC_Glu_agonist)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3KO_L5_nn_Glu_agonist))])
+class_layer_KO = unique(Data_KO_agon{1,3});
+disp([<span class="string">'The following layers are present for KO: '</span>, strjoin(class_layer_KO,<span class="string">', '</span>)])
+class_species_KO = unique(Data_KO_agon{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_KO,<span class="string">', '</span>)])
+</pre><pre class="codeoutput">The WT data set contains 17 data points
+The following age categories are present for WT: old, unknown
+The following cell types are present for control: BB, L3, L5, PC, unknown
+BB: 3, L3-PC: 4, L5-PC: 10
+The following layers are present for WT: L3, L3-5, L5, unknown
+The recordings come from the follwoing species: mouse, unknown
+ 
+The KO data set contains 17 data points
+The following age categories are present for KO: old, unknown
+The following cell types are present for KO: PC, unknown
+FS: 3, L3-PC: 4, L5-PC: 10
+The following layers are present for KO: L3, L5, unknown
+The recordings come from the follwoing species: mouse, unknown
+</pre><p>Unfortunately, the low number of L3, FS/BT cells does not allow for further analyses. Therefor we will focus on L5 pyramidal cells</p><pre class="codeinput">Data_WT_L5 = Data(:,[2:5,8:17]);
+Data_WT_L5 = cellfun(@(x) x(ind_mGluR3WT_L5_pp_Glu_agonist'), Data_WT_L5, <span class="string">'UniformOutput'</span>, false);
+Data_KO_L5 = Data(:,[2:5,8:17]);
+Data_KO_L5 = cellfun(@(x) x(ind_mGluR3KO_L5_nn_Glu_agonist'), Data_KO_L5, <span class="string">'UniformOutput'</span>, false);
+</pre><p>We generate the model parameter histograms to eyeball the sample distributions and to get a first impression of differences between WT and KO, and summarize the mean, median and std in a boxplot:</p><pre class="codeinput">figure()
+<span class="keyword">for</span> i=1:10
+    subplot(2,5,i)
+    EMin = min([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    EMax = max([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    edges = linspace(EMin,EMax,8);
+    histogram(Data_WT_L5{1,4+i},edges,<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'Normalization'</span>,<span class="string">'pdf'</span>)
+    hold <span class="string">on</span>;
+    histogram(Data_KO_L5{1,4+i},edges,<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'Normalization'</span>,<span class="string">'pdf'</span>)
+    [f1,x1] = ksdensity(Data_WT_L5{1,4+i});
+    [f2,x2] = ksdensity(Data_KO_L5{1,4+i});
+    plot(x1,f1,<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,2)
+    plot(x2,f2,<span class="string">'r'</span>,<span class="string">'LineWidth'</span>,2)
+    title(ColNam(4+i))
+    xlim([EMin,EMax])
+<span class="keyword">end</span>
+set(gcf,<span class="string">'units'</span>,<span class="string">'centimeters'</span>,<span class="string">'position'</span>,[1,1,25,15])
+snapnow, close
+
+figure()
+<span class="keyword">for</span> i=1:10
+    subplot(2,5,i)
+    Val = [Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}];
+    Label = [ones(1,length(Data_WT_L5{1,4+i})),2*ones(1,length(Data_KO_L5{1,4+i}))];
+    boxplot(Val,Label,<span class="string">'Labels'</span>,{<span class="string">'WT'</span>,<span class="string">'KO'</span>},<span class="string">'Whisker'</span>,10)<span class="comment">%,'Notch','on')hold on</span>
+    hold <span class="string">on</span>;
+    plot([mean(Val(Label==1)),mean(Val(Label==2))], <span class="string">'xr'</span>)
+    title(ColNam(4+i))
+<span class="keyword">end</span>
+set(gcf,<span class="string">'units'</span>,<span class="string">'centimeters'</span>,<span class="string">'position'</span>,[1,1,25,15])
+snapnow; close;
+</pre><img vspace="5" hspace="5" src="AnalysisModPar_mGlu_05.png" alt=""> <img vspace="5" hspace="5" src="AnalysisModPar_mGlu_06.png" alt=""> <p>We need to check if the mean and variance of the WT and KO distributions are significantly different. We do so by running a two-sample t-test (in case the distributions are halfway normal) and a Wilcoxon rank sum test (for non-normal distributions) for the mean, and a Bartlett&#8217;s, Brown-Forsythe and Levene&#8217;s test for the variance.</p><pre class="codeinput">H_mean_t = zeros(1,10);
+H_mean_rank = zeros(1,10);
+H_var_brown = zeros(1,10);
+H_var_levene = zeros(1,10);
+H_var_bart = zeros(1,10);
+<span class="keyword">for</span> i=1:10
+    x = Data_WT_L5{1,4+i};
+    y = Data_KO_L5{1,4+i};
+    <span class="comment">% Check mean ...</span>
+    [h,~,ci,~] = ttest2(x,y,<span class="string">'VarType'</span>,<span class="string">'unequal'</span>);
+    H_mean_t(i) = h;
+    [~,h] = ranksum(x,y);
+    H_mean_rank(i) = h;
+    <span class="comment">% Check variance ...</span>
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]',<span class="string">'TestType'</span>,<span class="string">'BrownForsythe'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+    <span class="keyword">if</span> p&lt;0.05
+        H_var_brown(i) = 1;
+    <span class="keyword">end</span>
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]',<span class="string">'TestType'</span>,<span class="string">'LeveneQuadratic'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+    <span class="keyword">if</span> p&lt;0.05
+        H_var_levene(i) = 1;
+    <span class="keyword">end</span>
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]',<span class="string">'TestType'</span>,<span class="string">'Bartlett'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+    <span class="keyword">if</span> p&lt;0.05
+        H_var_bart(i) = 1;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+id1 = find(H_mean_t==1);
+id2 = find(H_mean_rank==1);
+
+<span class="keyword">if</span> (isempty(id1) &amp;&amp; isempty(id2))
+    disp(<span class="string">'No mean is significantly different'</span>)
+<span class="keyword">else</span>
+    <span class="keyword">for</span> i=1:length(id1)
+        disp(join([<span class="string">'According to a two-sample t-test, the mean of the'</span> ColNam(4+id1(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> i=1:length(id2)
+        disp(join([<span class="string">'According to a Wilcoxon rank sum test, the mean of the'</span> ColNam(4+id2(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+id1 = find(H_var_bart==1);
+id2 = find(H_var_brown==1);
+id3 = find(H_var_levene==1);
+
+<span class="keyword">if</span> (isempty(id1) &amp;&amp; isempty(id2))
+    disp(<span class="string">'No varaince is significantly different'</span>)
+<span class="keyword">else</span>
+    <span class="keyword">for</span> i=1:length(id1)
+        disp(join([<span class="string">'According to a Bartlett&#8217;s test, the variance of the'</span> ColNam(4+id1(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> i=1:length(id2)
+        disp(join([<span class="string">'According to a Brown-Forsythe test, the variance of the'</span> ColNam(4+id2(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> i=1:length(id3)
+        disp(join([<span class="string">'According to a Levene&#8217;s test, the variance of the'</span> ColNam(4+id3(i)) <span class="string">'distribution is significantly different between WT and KO'</span>]))
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">According to a two-sample t-test, the mean of the C distribution is significantly different between WT and KO
+According to a two-sample t-test, the mean of the tau distribution is significantly different between WT and KO
+According to a Wilcoxon rank sum test, the mean of the C distribution is significantly different between WT and KO
+According to a Wilcoxon rank sum test, the mean of the b distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the tau distribution is significantly different between WT and KO
+According to a Bartlett&#8217;s test, the variance of the b distribution is significantly different between WT and KO
+According to a Brown-Forsythe test, the variance of the gL distribution is significantly different between WT and KO
+According to a Brown-Forsythe test, the variance of the tau distribution is significantly different between WT and KO
+According to a Levene&#8217;s test, the variance of the gL distribution is significantly different between WT and KO
+</pre><p>As some of the parameters are not independent, and in general the distribution can be regarded as multivariate, we perform a MANOVA test (under the probably wrong assumptions that the data comes from a n-dim normal distribution). As we have two groups (WT and KO), MANOVA is equivalent and the test reduces to Hotelling's T-square.</p><pre class="codeinput">x = []; y = [];
+<span class="keyword">for</span> i=[1,2,4,5,6,7,9,10]
+    x = [x Data_WT_L5{1,4+i}'];
+    y = [y Data_KO_L5{1,4+i}'];
+<span class="keyword">end</span>
+
+z = [x;y];
+group = [zeros(1,size(x,1)),ones(1,size(y,1))];
+[~,p,~] = manova1(z,group);
+[~,P] = HotellingsT2(x,y,0.05,0);
+
+<span class="keyword">if</span> (p&lt;0.05 &amp;&amp; P&lt;0.05)
+    disp(<span class="string">"According to the MANOVA/Hotellings T2 test, the vector sample means are significantly different."</span>)
+<span class="keyword">elseif</span> (p&gt;=0.05 &amp;&amp; P&lt;0.05)
+    disp(<span class="string">"According to the MANOVA test, the vector of means of WT and KO conditions are not significantly different."</span>)
+<span class="keyword">elseif</span> (p&lt;0.05 &amp;&amp; P&gt;=0.05)
+    disp(<span class="string">"According to the Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different."</span>)
+<span class="keyword">else</span>
+    disp(<span class="string">"According to the MANOVA/Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different."</span>)
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">According to the MANOVA/Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different.
+</pre><h2 id="20">Analysis of WT (control) vs. WT (agonist) data</h2><p>In a first step we look at the number of data points with respect to specific conditions (age, cell type, layer, species)</p><pre class="codeinput">N_WT_cont = size(Data_WT_cont{1,1},1);
+disp([<span class="string">'The WT/control data set contains '</span> num2str(N_WT_cont) <span class="string">' data points'</span>])
+class_age_WT_cont = unique(Data_WT_cont{1,1});
+disp([<span class="string">'The following age categories are present for WT/control: '</span> strjoin(class_age_WT_cont,<span class="string">', '</span>)])
+class_celltype_WT_cont = unique(Data_WT_cont{1,2});
+disp([<span class="string">'The following cell types are present for WT/control: '</span> strjoin(class_celltype_WT_cont,<span class="string">', '</span>)])
+disp([<span class="string">'BB: '</span> num2str(length(ind_mGluR3WT_BB_Glu_control)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3WT_L3_PC_Glu_control)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3WT_L5_pp_Glu_control))])
+class_layer_WT_cont = unique(Data_WT_cont{1,3});
+disp([<span class="string">'The following layers are present for WT/control: '</span>, strjoin(class_layer_WT_cont,<span class="string">', '</span>)])
+class_species_WT_cont = unique(Data_WT_cont{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_WT_cont,<span class="string">', '</span>)])
+disp([<span class="string">' '</span>])
+N_WT_agon = size(Data_WT_agon{1,1},1);
+disp([<span class="string">'The WT/agonist data set contains '</span> num2str(N_WT_agon) <span class="string">' data points'</span>])
+class_age_WT_agon = unique(Data_WT_agon{1,1});
+disp([<span class="string">'The following age categories are present for WT/agonist: '</span> strjoin(class_age_WT_agon,<span class="string">', '</span>)])
+class_celltype_WT_agon = unique(Data_WT_agon{1,2});
+disp([<span class="string">'The following cell types are present for WT/agon: '</span> strjoin(class_celltype_WT_agon,<span class="string">', '</span>)])
+disp([<span class="string">'BB: '</span> num2str(length(ind_mGluR3WT_BB_Glu_agonist)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3WT_L3_PC_Glu_agonist)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3WT_L5_pp_Glu_agonist))])
+class_layer_WT_agon = unique(Data_WT_agon{1,3});
+disp([<span class="string">'The following layers are present for WT/agonist: '</span>, strjoin(class_layer_WT_agon,<span class="string">', '</span>)])
+class_species_WT_agon = unique(Data_WT_agon{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_WT_agon,<span class="string">', '</span>)])
+</pre><pre class="codeoutput">The WT/control data set contains 25 data points
+The following age categories are present for WT/control: old, unknown
+The following cell types are present for WT/control: BB, L3, L5, PC, unknown
+BB: 3, L3-PC: 6, L5-PC: 16
+The following layers are present for WT/control: L3, L3-5, L5, unknown
+The recordings come from the follwoing species: mouse, unknown
+ 
+The WT/agonist data set contains 17 data points
+The following age categories are present for WT/agonist: old, unknown
+The following cell types are present for WT/agon: BB, L3, L5, PC, unknown
+BB: 3, L3-PC: 4, L5-PC: 10
+The following layers are present for WT/agonist: L3, L3-5, L5, unknown
+The recordings come from the follwoing species: mouse, unknown
+</pre><h2 id="21">Analysis of KO (control) vs. KO (agonist) data</h2><p>In a first step we look at the number of data points with respect to specific conditions (age, cell type, layer, species)</p><pre class="codeinput">N_KO_cont = size(Data_KO_cont{1,1},1);
+disp([<span class="string">'The KO/control data set contains '</span> num2str(N_KO_cont) <span class="string">' data points'</span>])
+class_age_KO_cont = unique(Data_KO_cont{1,1});
+disp([<span class="string">'The following age categories are present for KO/control: '</span> strjoin(class_age_KO_cont,<span class="string">', '</span>)])
+class_celltype_KO_cont = unique(Data_KO_cont{1,2});
+disp([<span class="string">'The following cell types are present for KO/control: '</span> strjoin(class_celltype_KO_cont,<span class="string">', '</span>)])
+disp([<span class="string">'FS: '</span> num2str(length(ind_mGluR3KO_FS_Glu_control)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3KO_L3_PC_Glu_control)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3KO_L5_nn_Glu_control))])
+class_layer_KO_cont = unique(Data_KO_cont{1,3});
+disp([<span class="string">'The following layers are present for KO/control: '</span>, strjoin(class_layer_KO_cont,<span class="string">', '</span>)])
+class_species_KO_cont = unique(Data_KO_cont{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_KO_cont,<span class="string">', '</span>)])
+disp([<span class="string">' '</span>])
+N_KO_agon = size(Data_KO_agon{1,1},1);
+disp([<span class="string">'The KO/agonist data set contains '</span> num2str(N_KO_agon) <span class="string">' data points'</span>])
+class_age_KO_agon = unique(Data_KO_agon{1,1});
+disp([<span class="string">'The following age categories are present for KO/agonist: '</span> strjoin(class_age_KO_agon,<span class="string">', '</span>)])
+class_celltype_KO_agon = unique(Data_KO_agon{1,2});
+disp([<span class="string">'The following cell types are present for KO/agon: '</span> strjoin(class_celltype_KO_agon,<span class="string">', '</span>)])
+disp([<span class="string">'FS: '</span> num2str(length(ind_mGluR3KO_FS_Glu_agonist)) <span class="string">', L3-PC: '</span> num2str(length(ind_mGluR3KO_L3_PC_Glu_agonist)) <span class="string">', L5-PC: '</span> num2str(length(ind_mGluR3KO_L5_nn_Glu_agonist))])
+class_layer_KO_agon = unique(Data_KO_agon{1,3});
+disp([<span class="string">'The following layers are present for KO/agonist: '</span>, strjoin(class_layer_KO_agon,<span class="string">', '</span>)])
+class_species_KO_agon = unique(Data_KO_agon{1,4});
+disp([<span class="string">'The recordings come from the follwoing species: '</span>, strjoin(class_species_KO_agon,<span class="string">', '</span>)])
+</pre><pre class="codeoutput">The KO/control data set contains 13 data points
+The following age categories are present for KO/control: old, unknown
+The following cell types are present for KO/control: FS, PC, unknown
+FS: 2, L3-PC: 1, L5-PC: 10
+The following layers are present for KO/control: L3, L3-5, unknown
+The recordings come from the follwoing species: mouse, unknown
+ 
+The KO/agonist data set contains 17 data points
+The following age categories are present for KO/agonist: old, unknown
+The following cell types are present for KO/agon: PC, unknown
+FS: 3, L3-PC: 4, L5-PC: 10
+The following layers are present for KO/agonist: L3, L5, unknown
+The recordings come from the follwoing species: mouse, unknown
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Statistical analysis of the 'SimpAdEx' model parameters for mGluR3
+% This worksheet contains all code and further explanations to perform statistical
+% analyses of the model parameters for mGluR3
+
+%% Loading and processing data
+% We load the data containing all parameters
+
+load('EverythingInOneFile34.mat');
+
+%%
+% For the subsequent analyses, we only need some of the information.
+% Therefore, we generate a new data structure / data array:
+
+pharma = reshape(pharma,[690 1]);
+type = reshape(type,[690 1]);
+LoV = ["genotype","age2","cell_type2","layer","species","pharma","type"];
+
+for i=1:690
+    for j=1:size(LoV,2)
+        if eval("~isa(" + LoV(j) + "{" + i + ",1},'char')")
+            eval(LoV(j) + "{" + i + ",1}='unknown';")
+        end
+    end
+end
+
+Data{:,1} = genotype;
+Data{:,2} = age2;
+Data{:,3} = cell_type2;
+Data{:,4} = layer;
+Data{:,5} = species;
+Data{:,6} = pharma;
+Data{:,7} = type;
+Data{:,8} = C;          
+Data{:,9} = gL;
+Data{:,10} = tau;
+Data{:,11} = EL;
+Data{:,12} = sf;
+Data{:,13} = Vth;
+Data{:,14} = Vr;
+Data{:,15} = Vup;
+Data{:,16} = tcw;
+Data{:,17} = b;
+
+%% 
+% We create new data frame that contains mGlu-data only
+
+ind_WT = [ind_mGluR3WT_L3_PC',ind_mGluR3WT_L5_pp',ind_mGluR3WT_BB'];
+ind_KO = [ind_mGluR3KO_L3_PC',ind_mGluR3KO_L5_nn',ind_mGluR3KO_FS'];
+ind_KO_cont = [ind_mGluR3KO_L3_PC_Glu_control',ind_mGluR3KO_L5_nn_Glu_control',ind_mGluR3KO_FS_Glu_control'];
+ind_KO_agon = [ind_mGluR3KO_L3_PC_Glu_agonist',ind_mGluR3KO_L5_nn_Glu_agonist',ind_mGluR3KO_FS_Glu_agonist'];
+ind_WT_agon = [ind_mGluR3WT_L3_PC_Glu_agonist',ind_mGluR3WT_L5_pp_Glu_agonist',ind_mGluR3WT_BB_Glu_agonist'];
+ind_WT_cont = [ind_mGluR3WT_L3_PC_Glu_control',ind_mGluR3WT_L5_pp_Glu_control',ind_mGluR3WT_BB_Glu_control'];
+
+Data_WT = Data(:,[2:5,8:17]);
+Data_WT = cellfun(@(x) x(ind_WT), Data_WT, 'UniformOutput', false);
+Data_KO = Data(:,[2:5,8:17]);
+Data_KO = cellfun(@(x) x(ind_KO), Data_KO, 'UniformOutput', false);
+Data_WT_cont = Data(:,[2:5,8:17]);
+Data_WT_cont = cellfun(@(x) x(ind_WT_cont), Data_WT_cont, 'UniformOutput', false);
+Data_KO_cont = Data(:,[2:5,8:17]);
+Data_KO_cont = cellfun(@(x) x(ind_KO_cont), Data_KO_cont, 'UniformOutput', false);
+Data_WT_agon = Data(:,[2:5,8:17]);
+Data_WT_agon = cellfun(@(x) x(ind_WT_agon), Data_WT_agon, 'UniformOutput', false);
+Data_KO_agon = Data(:,[2:5,8:17]);
+Data_KO_agon = cellfun(@(x) x(ind_KO_agon), Data_KO_agon, 'UniformOutput', false);
+ColNam = ["age","cell_type","layer","species","C","gL","tau","EL","sf","Vth","Vr","Vup","tcw","b"];
+
+%% Analysis of WT vs. KO data
+% In a first step we look at the number of data points with respect to
+% specific conditions (age, cell type, layer, species)
+
+N_WT = size(Data_WT{1,1},1);
+disp(['The WT data set contains ' num2str(N_WT) ' data points'])
+class_age_WT = unique(Data_WT{1,1});
+disp(['The following age categories are present for WT: ' strjoin(class_age_WT,', ')])
+class_celltype_WT = unique(Data_WT{1,2});
+disp(['The following cell types are present for control: ' strjoin(class_celltype_WT,', ')])
+disp(['BB: ' num2str(length(ind_mGluR3WT_BB)) ', L3-PC: ' num2str(length(ind_mGluR3WT_L3_PC)) ', L5-PC: ' num2str(length(ind_mGluR3WT_L5_pp))])
+class_layer_WT = unique(Data_WT{1,3});
+disp(['The following layers are present for WT: ', strjoin(class_layer_WT,', ')])
+class_species_WT = unique(Data_WT{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_WT,', ')])
+disp([' '])
+N_KO = size(Data_KO{1,1},1);
+disp(['The KO data set contains ' num2str(N_KO) ' data points'])
+class_age_KO = unique(Data_KO{1,1});
+disp(['The following age categories are present for KO: ' strjoin(class_age_KO,', ')])
+class_celltype_KO = unique(Data_KO{1,2});
+disp(['The following cell types are present for KO: ' strjoin(class_celltype_KO,', ')])
+disp(['FS: ' num2str(length(ind_mGluR3KO_FS)) ', L3-PC: ' num2str(length(ind_mGluR3KO_L3_PC)) ', L5-PC: ' num2str(length(ind_mGluR3KO_L5_nn))])
+class_layer_KO = unique(Data_KO{1,3});
+disp(['The following layers are present for KO: ', strjoin(class_layer_KO,', ')])
+class_species_KO = unique(Data_KO{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_KO,', ')])
+
+%%
+% Unfortunately, the low number of L3, FS/BT cells does not allow for
+% further analyses. Therefor we will focus on L5 pyramidal cells
+
+Data_WT_L5 = Data(:,[2:5,8:17]);
+Data_WT_L5 = cellfun(@(x) x(ind_mGluR3WT_L5_pp'), Data_WT_L5, 'UniformOutput', false);
+Data_KO_L5 = Data(:,[2:5,8:17]);
+Data_KO_L5 = cellfun(@(x) x(ind_mGluR3KO_L5_nn'), Data_KO_L5, 'UniformOutput', false);
+
+%%
+% We generate the model parameter histograms to eyeball the sample
+% distributions and to get a first impression of differences between
+% WT and KO.
+
+figure()
+for i=1:10
+    subplot(2,5,i)
+    EMin = min([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    EMax = max([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    edges = linspace(EMin,EMax,8);
+    histogram(Data_WT_L5{1,4+i},edges,'FaceColor','b','Normalization','pdf')
+    hold on;
+    histogram(Data_KO_L5{1,4+i},edges,'FaceColor','r','Normalization','pdf')
+    [f1,x1] = ksdensity(Data_WT_L5{1,4+i});
+    [f2,x2] = ksdensity(Data_KO_L5{1,4+i});
+    plot(x1,f1,'b','LineWidth',2)
+    plot(x2,f2,'r','LineWidth',2)
+    title(ColNam(4+i))
+    xlim([EMin,EMax])
+end
+set(gcf,'units','centimeters','position',[1,1,25,15])
+snapnow, close
+
+%% 
+% By eyeball inspection, most distributions seem to be nonnormal. Also, the
+% distributions of WT and KO conditions very often look similar (even 
+% though this is hard to tell given the low number of datat points). We cannot
+% expect hugh differences in mean, median or standard deviation. This can
+% also be seen in a boxplot summary:
+
+figure()
+for i=1:10
+    subplot(2,5,i)
+    Val = [Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}];
+    Label = [ones(1,length(Data_WT_L5{1,4+i})),2*ones(1,length(Data_KO_L5{1,4+i}))];
+    boxplot(Val,Label,'Labels',{'WT','KO'},'Whisker',10)%,'Notch','on')hold on
+    hold on;
+    plot([mean(Val(Label==1)),mean(Val(Label==2))], 'xr')
+    title(ColNam(4+i))
+end
+set(gcf,'units','centimeters','position',[1,1,25,15])
+snapnow; close;
+
+%% 
+% We need to check if the mean and variance of the WT and KO
+% distributions are significantly different. We do so by running a
+% two-sample t-test (in case the distributions are halfway normal) and a
+% Wilcoxon rank sum test (for non-normal distributions) for the mean, and
+% a Bartlett’s, Brown-Forsythe and Levene’s test for the variance.
+
+H_mean_t = zeros(1,10);
+H_mean_rank = zeros(1,10);
+H_var_brown = zeros(1,10);
+H_var_levene = zeros(1,10);
+H_var_bart = zeros(1,10);
+for i=1:10
+    x = Data_WT_L5{1,4+i};
+    y = Data_KO_L5{1,4+i};
+    % Check mean ...
+    [h,~,ci,~] = ttest2(x,y,'VarType','unequal'); 
+    H_mean_t(i) = h;
+    [~,h] = ranksum(x,y);
+    H_mean_rank(i) = h;
+    % Check variance ...
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]','TestType','BrownForsythe','Display','off');
+    if p<0.05
+        H_var_brown(i) = 1;
+    end
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]','TestType','LeveneQuadratic','Display','off');
+    if p<0.05
+        H_var_levene(i) = 1;
+    end
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]','TestType','Bartlett','Display','off');
+    if p<0.05
+        H_var_bart(i) = 1;
+    end
+end
+
+id1 = find(H_mean_t==1);
+id2 = find(H_mean_rank==1);
+
+if (isempty(id1) && isempty(id2))
+    disp('No mean is significantly different')
+else
+    for i=1:length(id1)
+        disp(join(['According to a two-sample t-test, the mean of the' ColNam(4+id1(i)) 'distribution is significantly different between WT and KO']))
+    end
+    for i=1:length(id2)
+        disp(join(['According to a Wilcoxon rank sum test, the mean of the' ColNam(4+id2(i)) 'distribution is significantly different between WT and KO']))
+    end
+end
+
+id1 = find(H_var_bart==1);
+id2 = find(H_var_brown==1);
+id3 = find(H_var_levene==1);
+
+if (isempty(id1) && isempty(id2))
+    disp('No varaince is significantly different')
+else
+    for i=1:length(id1)
+        disp(join(['According to a Bartlett’s test, the variance of the' ColNam(4+id1(i)) 'distribution is significantly different between WT and KO']))
+    end
+    for i=1:length(id2)
+        disp(join(['According to a Brown-Forsythe test, the variance of the' ColNam(4+id2(i)) 'distribution is significantly different between WT and KO']))
+    end
+    for i=1:length(id3)
+        disp(join(['According to a Levene’s test, the variance of the' ColNam(4+id3(i)) 'distribution is significantly different between WT and KO']))
+    end
+end
+
+%%
+% As some of the parameters are not independent, and in general the
+% distribution can be regarded as multivariate, we perform a MANOVA test
+% (under the probably wrong assumptions that the data comes from a n-dim
+% normal distribution). As we have two groups (WT and KO),
+% MANOVA is equivalent and the test reduces to Hotelling's T-square.
+
+x = []; y = [];
+for i=[1,2,4,5,6,7,9,10]
+    x = [x Data_WT_L5{1,4+i}'];
+    y = [y Data_KO_L5{1,4+i}'];   
+end
+
+z = [x;y];
+group = [zeros(1,size(x,1)),ones(1,size(y,1))];
+[~,p,~] = manova1(z,group);
+[~,P] = HotellingsT2(x,y,0.05,0);
+
+if (p<0.05 && P<0.05)
+    disp("According to the MANOVA/Hotellings T2 test, the vector sample means are significantly different.")
+elseif (p>=0.05 && P<0.05)
+    disp("According to the MANOVA test, the vector of means of WT and KO conditions are not significantly different.")
+elseif (p<0.05 && P>=0.05)
+    disp("According to the Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different.")
+else
+    disp("According to the MANOVA/Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different.")
+end
+
+
+%% Analysis of WT (control) vs. KO (control) data
+% In a first step we look at the number of data points with respect to
+% specific conditions (age, cell type, layer, species)
+
+N_WT = size(Data_WT_cont{1,1},1);
+disp(['The WT data set contains ' num2str(N_WT) ' data points'])
+class_age_WT = unique(Data_WT_cont{1,1});
+disp(['The following age categories are present for WT: ' strjoin(class_age_WT,', ')])
+class_celltype_WT = unique(Data_WT_cont{1,2});
+disp(['The following cell types are present for control: ' strjoin(class_celltype_WT,', ')])
+disp(['BB: ' num2str(length(ind_mGluR3WT_BB_Glu_control)) ', L3-PC: ' num2str(length(ind_mGluR3WT_L3_PC_Glu_control)) ', L5-PC: ' num2str(length(ind_mGluR3WT_L5_pp_Glu_control))])
+class_layer_WT = unique(Data_WT_cont{1,3});
+disp(['The following layers are present for WT: ', strjoin(class_layer_WT,', ')])
+class_species_WT = unique(Data_WT_cont{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_WT,', ')])
+disp([' '])
+N_KO = size(Data_KO_cont{1,1},1);
+disp(['The KO data set contains ' num2str(N_KO) ' data points'])
+class_age_KO = unique(Data_KO_cont{1,1});
+disp(['The following age categories are present for KO: ' strjoin(class_age_KO,', ')])
+class_celltype_KO = unique(Data_KO_cont{1,2});
+disp(['The following cell types are present for KO: ' strjoin(class_celltype_KO,', ')])
+disp(['FS: ' num2str(length(ind_mGluR3KO_FS_Glu_control)) ', L3-PC: ' num2str(length(ind_mGluR3KO_L3_PC_Glu_control)) ', L5-PC: ' num2str(length(ind_mGluR3KO_L5_nn_Glu_control))])
+class_layer_KO = unique(Data_KO_cont{1,3});
+disp(['The following layers are present for KO: ', strjoin(class_layer_KO,', ')])
+class_species_KO = unique(Data_KO_cont{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_KO,', ')])
+
+%%
+% Unfortunately, the low number of L3, FS/BT cells does not allow for
+% further analyses. Therefor we will focus on L5 pyramidal cells
+
+Data_WT_L5 = Data(:,[2:5,8:17]);
+Data_WT_L5 = cellfun(@(x) x(ind_mGluR3WT_L5_pp_Glu_control'), Data_WT_L5, 'UniformOutput', false);
+Data_KO_L5 = Data(:,[2:5,8:17]);
+Data_KO_L5 = cellfun(@(x) x(ind_mGluR3KO_L5_nn_Glu_control'), Data_KO_L5, 'UniformOutput', false);
+
+%%
+% We generate the model parameter histograms to eyeball the sample
+% distributions and to get a first impression of differences between
+% WT and KO, and summarize the mean, median and std in a boxplot:
+
+figure()
+for i=1:10
+    subplot(2,5,i)
+    EMin = min([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    EMax = max([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    edges = linspace(EMin,EMax,8);
+    histogram(Data_WT_L5{1,4+i},edges,'FaceColor','b','Normalization','pdf')
+    hold on;
+    histogram(Data_KO_L5{1,4+i},edges,'FaceColor','r','Normalization','pdf')
+    [f1,x1] = ksdensity(Data_WT_L5{1,4+i});
+    [f2,x2] = ksdensity(Data_KO_L5{1,4+i});
+    plot(x1,f1,'b','LineWidth',2)
+    plot(x2,f2,'r','LineWidth',2)
+    title(ColNam(4+i))
+    xlim([EMin,EMax])
+end
+set(gcf,'units','centimeters','position',[1,1,25,15])
+snapnow, close
+
+figure()
+for i=1:10
+    subplot(2,5,i)
+    Val = [Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}];
+    Label = [ones(1,length(Data_WT_L5{1,4+i})),2*ones(1,length(Data_KO_L5{1,4+i}))];
+    boxplot(Val,Label,'Labels',{'WT','KO'},'Whisker',10)%,'Notch','on')hold on
+    hold on;
+    plot([mean(Val(Label==1)),mean(Val(Label==2))], 'xr')
+    title(ColNam(4+i))
+end
+set(gcf,'units','centimeters','position',[1,1,25,15])
+snapnow; close;
+
+%% 
+% We need to check if the mean and variance of the WT and KO
+% distributions are significantly different. We do so by running a
+% two-sample t-test (in case the distributions are halfway normal) and a
+% Wilcoxon rank sum test (for non-normal distributions) for the mean, and
+% a Bartlett’s, Brown-Forsythe and Levene’s test for the variance.
+
+H_mean_t = zeros(1,10);
+H_mean_rank = zeros(1,10);
+H_var_brown = zeros(1,10);
+H_var_levene = zeros(1,10);
+H_var_bart = zeros(1,10);
+for i=1:10
+    x = Data_WT_L5{1,4+i};
+    y = Data_KO_L5{1,4+i};
+    % Check mean ...
+    [h,~,ci,~] = ttest2(x,y,'VarType','unequal'); 
+    H_mean_t(i) = h;
+    [~,h] = ranksum(x,y);
+    H_mean_rank(i) = h;
+    % Check variance ...
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]','TestType','BrownForsythe','Display','off');
+    if p<0.05
+        H_var_brown(i) = 1;
+    end
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]','TestType','LeveneQuadratic','Display','off');
+    if p<0.05
+        H_var_levene(i) = 1;
+    end
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]','TestType','Bartlett','Display','off');
+    if p<0.05
+        H_var_bart(i) = 1;
+    end
+end
+
+id1 = find(H_mean_t==1);
+id2 = find(H_mean_rank==1);
+
+if (isempty(id1) && isempty(id2))
+    disp('No mean is significantly different')
+else
+    for i=1:length(id1)
+        disp(join(['According to a two-sample t-test, the mean of the' ColNam(4+id1(i)) 'distribution is significantly different between WT and KO']))
+    end
+    for i=1:length(id2)
+        disp(join(['According to a Wilcoxon rank sum test, the mean of the' ColNam(4+id2(i)) 'distribution is significantly different between WT and KO']))
+    end
+end
+
+id1 = find(H_var_bart==1);
+id2 = find(H_var_brown==1);
+id3 = find(H_var_levene==1);
+
+if (isempty(id1) && isempty(id2))
+    disp('No varaince is significantly different')
+else
+    for i=1:length(id1)
+        disp(join(['According to a Bartlett’s test, the variance of the' ColNam(4+id1(i)) 'distribution is significantly different between WT and KO']))
+    end
+    for i=1:length(id2)
+        disp(join(['According to a Brown-Forsythe test, the variance of the' ColNam(4+id2(i)) 'distribution is significantly different between WT and KO']))
+    end
+    for i=1:length(id3)
+        disp(join(['According to a Levene’s test, the variance of the' ColNam(4+id3(i)) 'distribution is significantly different between WT and KO']))
+    end
+end
+
+%%
+% As some of the parameters are not independent, and in general the
+% distribution can be regarded as multivariate, we perform a MANOVA test
+% (under the probably wrong assumptions that the data comes from a n-dim
+% normal distribution). As we have two groups (WT and KO),
+% MANOVA is equivalent and the test reduces to Hotelling's T-square.
+
+x = []; y = [];
+for i=[1,2,4,5,6,7,9,10]
+    x = [x Data_WT_L5{1,4+i}'];
+    y = [y Data_KO_L5{1,4+i}'];   
+end
+
+z = [x;y];
+group = [zeros(1,size(x,1)),ones(1,size(y,1))];
+[~,p,~] = manova1(z,group);
+[~,P] = HotellingsT2(x,y,0.05,0);
+
+if (p<0.05 && P<0.05)
+    disp("According to the MANOVA/Hotellings T2 test, the vector sample means are significantly different.")
+elseif (p>=0.05 && P<0.05)
+    disp("According to the MANOVA test, the vector of means of WT and KO conditions are not significantly different.")
+elseif (p<0.05 && P>=0.05)
+    disp("According to the Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different.")
+else
+    disp("According to the MANOVA/Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different.")
+end
+
+%% Analysis of WT (agonist) vs. KO (agonist) data
+% In a first step we look at the number of data points with respect to
+% specific conditions (age, cell type, layer, species)
+
+N_WT = size(Data_WT_agon{1,1},1);
+disp(['The WT data set contains ' num2str(N_WT) ' data points'])
+class_age_WT = unique(Data_WT_agon{1,1});
+disp(['The following age categories are present for WT: ' strjoin(class_age_WT,', ')])
+class_celltype_WT = unique(Data_WT_agon{1,2});
+disp(['The following cell types are present for control: ' strjoin(class_celltype_WT,', ')])
+disp(['BB: ' num2str(length(ind_mGluR3WT_BB_Glu_agonist)) ', L3-PC: ' num2str(length(ind_mGluR3WT_L3_PC_Glu_agonist)) ', L5-PC: ' num2str(length(ind_mGluR3WT_L5_pp_Glu_agonist))])
+class_layer_WT = unique(Data_WT_agon{1,3});
+disp(['The following layers are present for WT: ', strjoin(class_layer_WT,', ')])
+class_species_WT = unique(Data_WT_agon{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_WT,', ')])
+disp([' '])
+N_KO = size(Data_KO_agon{1,1},1);
+disp(['The KO data set contains ' num2str(N_KO) ' data points'])
+class_age_KO = unique(Data_KO_agon{1,1});
+disp(['The following age categories are present for KO: ' strjoin(class_age_KO,', ')])
+class_celltype_KO = unique(Data_KO_agon{1,2});
+disp(['The following cell types are present for KO: ' strjoin(class_celltype_KO,', ')])
+disp(['FS: ' num2str(length(ind_mGluR3KO_FS_Glu_agonist)) ', L3-PC: ' num2str(length(ind_mGluR3KO_L3_PC_Glu_agonist)) ', L5-PC: ' num2str(length(ind_mGluR3KO_L5_nn_Glu_agonist))])
+class_layer_KO = unique(Data_KO_agon{1,3});
+disp(['The following layers are present for KO: ', strjoin(class_layer_KO,', ')])
+class_species_KO = unique(Data_KO_agon{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_KO,', ')])
+
+%%
+% Unfortunately, the low number of L3, FS/BT cells does not allow for
+% further analyses. Therefor we will focus on L5 pyramidal cells
+
+Data_WT_L5 = Data(:,[2:5,8:17]);
+Data_WT_L5 = cellfun(@(x) x(ind_mGluR3WT_L5_pp_Glu_agonist'), Data_WT_L5, 'UniformOutput', false);
+Data_KO_L5 = Data(:,[2:5,8:17]);
+Data_KO_L5 = cellfun(@(x) x(ind_mGluR3KO_L5_nn_Glu_agonist'), Data_KO_L5, 'UniformOutput', false);
+
+%%
+% We generate the model parameter histograms to eyeball the sample
+% distributions and to get a first impression of differences between
+% WT and KO, and summarize the mean, median and std in a boxplot:
+
+figure()
+for i=1:10
+    subplot(2,5,i)
+    EMin = min([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    EMax = max([Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}]);
+    edges = linspace(EMin,EMax,8);
+    histogram(Data_WT_L5{1,4+i},edges,'FaceColor','b','Normalization','pdf')
+    hold on;
+    histogram(Data_KO_L5{1,4+i},edges,'FaceColor','r','Normalization','pdf')
+    [f1,x1] = ksdensity(Data_WT_L5{1,4+i});
+    [f2,x2] = ksdensity(Data_KO_L5{1,4+i});
+    plot(x1,f1,'b','LineWidth',2)
+    plot(x2,f2,'r','LineWidth',2)
+    title(ColNam(4+i))
+    xlim([EMin,EMax])
+end
+set(gcf,'units','centimeters','position',[1,1,25,15])
+snapnow, close
+
+figure()
+for i=1:10
+    subplot(2,5,i)
+    Val = [Data_WT_L5{1,4+i},Data_KO_L5{1,4+i}];
+    Label = [ones(1,length(Data_WT_L5{1,4+i})),2*ones(1,length(Data_KO_L5{1,4+i}))];
+    boxplot(Val,Label,'Labels',{'WT','KO'},'Whisker',10)%,'Notch','on')hold on
+    hold on;
+    plot([mean(Val(Label==1)),mean(Val(Label==2))], 'xr')
+    title(ColNam(4+i))
+end
+set(gcf,'units','centimeters','position',[1,1,25,15])
+snapnow; close;
+
+%% 
+% We need to check if the mean and variance of the WT and KO
+% distributions are significantly different. We do so by running a
+% two-sample t-test (in case the distributions are halfway normal) and a
+% Wilcoxon rank sum test (for non-normal distributions) for the mean, and
+% a Bartlett’s, Brown-Forsythe and Levene’s test for the variance.
+
+H_mean_t = zeros(1,10);
+H_mean_rank = zeros(1,10);
+H_var_brown = zeros(1,10);
+H_var_levene = zeros(1,10);
+H_var_bart = zeros(1,10);
+for i=1:10
+    x = Data_WT_L5{1,4+i};
+    y = Data_KO_L5{1,4+i};
+    % Check mean ...
+    [h,~,ci,~] = ttest2(x,y,'VarType','unequal'); 
+    H_mean_t(i) = h;
+    [~,h] = ranksum(x,y);
+    H_mean_rank(i) = h;
+    % Check variance ...
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]','TestType','BrownForsythe','Display','off');
+    if p<0.05
+        H_var_brown(i) = 1;
+    end
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]','TestType','LeveneQuadratic','Display','off');
+    if p<0.05
+        H_var_levene(i) = 1;
+    end
+    [p,~] = vartestn([x,y]',[zeros(1,length(x)),ones(1,length(y))]','TestType','Bartlett','Display','off');
+    if p<0.05
+        H_var_bart(i) = 1;
+    end
+end
+
+id1 = find(H_mean_t==1);
+id2 = find(H_mean_rank==1);
+
+if (isempty(id1) && isempty(id2))
+    disp('No mean is significantly different')
+else
+    for i=1:length(id1)
+        disp(join(['According to a two-sample t-test, the mean of the' ColNam(4+id1(i)) 'distribution is significantly different between WT and KO']))
+    end
+    for i=1:length(id2)
+        disp(join(['According to a Wilcoxon rank sum test, the mean of the' ColNam(4+id2(i)) 'distribution is significantly different between WT and KO']))
+    end
+end
+
+id1 = find(H_var_bart==1);
+id2 = find(H_var_brown==1);
+id3 = find(H_var_levene==1);
+
+if (isempty(id1) && isempty(id2))
+    disp('No varaince is significantly different')
+else
+    for i=1:length(id1)
+        disp(join(['According to a Bartlett’s test, the variance of the' ColNam(4+id1(i)) 'distribution is significantly different between WT and KO']))
+    end
+    for i=1:length(id2)
+        disp(join(['According to a Brown-Forsythe test, the variance of the' ColNam(4+id2(i)) 'distribution is significantly different between WT and KO']))
+    end
+    for i=1:length(id3)
+        disp(join(['According to a Levene’s test, the variance of the' ColNam(4+id3(i)) 'distribution is significantly different between WT and KO']))
+    end
+end
+
+%%
+% As some of the parameters are not independent, and in general the
+% distribution can be regarded as multivariate, we perform a MANOVA test
+% (under the probably wrong assumptions that the data comes from a n-dim
+% normal distribution). As we have two groups (WT and KO),
+% MANOVA is equivalent and the test reduces to Hotelling's T-square.
+
+x = []; y = [];
+for i=[1,2,4,5,6,7,9,10]
+    x = [x Data_WT_L5{1,4+i}'];
+    y = [y Data_KO_L5{1,4+i}'];   
+end
+
+z = [x;y];
+group = [zeros(1,size(x,1)),ones(1,size(y,1))];
+[~,p,~] = manova1(z,group);
+[~,P] = HotellingsT2(x,y,0.05,0);
+
+if (p<0.05 && P<0.05)
+    disp("According to the MANOVA/Hotellings T2 test, the vector sample means are significantly different.")
+elseif (p>=0.05 && P<0.05)
+    disp("According to the MANOVA test, the vector of means of WT and KO conditions are not significantly different.")
+elseif (p<0.05 && P>=0.05)
+    disp("According to the Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different.")
+else
+    disp("According to the MANOVA/Hotellings T2 test, the vector of means of WT and KO conditions are not significantly different.")
+end
+
+%% Analysis of WT (control) vs. WT (agonist) data
+% In a first step we look at the number of data points with respect to
+% specific conditions (age, cell type, layer, species)
+
+N_WT_cont = size(Data_WT_cont{1,1},1);
+disp(['The WT/control data set contains ' num2str(N_WT_cont) ' data points'])
+class_age_WT_cont = unique(Data_WT_cont{1,1});
+disp(['The following age categories are present for WT/control: ' strjoin(class_age_WT_cont,', ')])
+class_celltype_WT_cont = unique(Data_WT_cont{1,2});
+disp(['The following cell types are present for WT/control: ' strjoin(class_celltype_WT_cont,', ')])
+disp(['BB: ' num2str(length(ind_mGluR3WT_BB_Glu_control)) ', L3-PC: ' num2str(length(ind_mGluR3WT_L3_PC_Glu_control)) ', L5-PC: ' num2str(length(ind_mGluR3WT_L5_pp_Glu_control))])
+class_layer_WT_cont = unique(Data_WT_cont{1,3});
+disp(['The following layers are present for WT/control: ', strjoin(class_layer_WT_cont,', ')])
+class_species_WT_cont = unique(Data_WT_cont{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_WT_cont,', ')])
+disp([' '])
+N_WT_agon = size(Data_WT_agon{1,1},1);
+disp(['The WT/agonist data set contains ' num2str(N_WT_agon) ' data points'])
+class_age_WT_agon = unique(Data_WT_agon{1,1});
+disp(['The following age categories are present for WT/agonist: ' strjoin(class_age_WT_agon,', ')])
+class_celltype_WT_agon = unique(Data_WT_agon{1,2});
+disp(['The following cell types are present for WT/agon: ' strjoin(class_celltype_WT_agon,', ')])
+disp(['BB: ' num2str(length(ind_mGluR3WT_BB_Glu_agonist)) ', L3-PC: ' num2str(length(ind_mGluR3WT_L3_PC_Glu_agonist)) ', L5-PC: ' num2str(length(ind_mGluR3WT_L5_pp_Glu_agonist))])
+class_layer_WT_agon = unique(Data_WT_agon{1,3});
+disp(['The following layers are present for WT/agonist: ', strjoin(class_layer_WT_agon,', ')])
+class_species_WT_agon = unique(Data_WT_agon{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_WT_agon,', ')])
+
+%% Analysis of KO (control) vs. KO (agonist) data
+% In a first step we look at the number of data points with respect to
+% specific conditions (age, cell type, layer, species)
+
+N_KO_cont = size(Data_KO_cont{1,1},1);
+disp(['The KO/control data set contains ' num2str(N_KO_cont) ' data points'])
+class_age_KO_cont = unique(Data_KO_cont{1,1});
+disp(['The following age categories are present for KO/control: ' strjoin(class_age_KO_cont,', ')])
+class_celltype_KO_cont = unique(Data_KO_cont{1,2});
+disp(['The following cell types are present for KO/control: ' strjoin(class_celltype_KO_cont,', ')])
+disp(['FS: ' num2str(length(ind_mGluR3KO_FS_Glu_control)) ', L3-PC: ' num2str(length(ind_mGluR3KO_L3_PC_Glu_control)) ', L5-PC: ' num2str(length(ind_mGluR3KO_L5_nn_Glu_control))])
+class_layer_KO_cont = unique(Data_KO_cont{1,3});
+disp(['The following layers are present for KO/control: ', strjoin(class_layer_KO_cont,', ')])
+class_species_KO_cont = unique(Data_KO_cont{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_KO_cont,', ')])
+disp([' '])
+N_KO_agon = size(Data_KO_agon{1,1},1);
+disp(['The KO/agonist data set contains ' num2str(N_KO_agon) ' data points'])
+class_age_KO_agon = unique(Data_KO_agon{1,1});
+disp(['The following age categories are present for KO/agonist: ' strjoin(class_age_KO_agon,', ')])
+class_celltype_KO_agon = unique(Data_KO_agon{1,2});
+disp(['The following cell types are present for KO/agon: ' strjoin(class_celltype_KO_agon,', ')])
+disp(['FS: ' num2str(length(ind_mGluR3KO_FS_Glu_agonist)) ', L3-PC: ' num2str(length(ind_mGluR3KO_L3_PC_Glu_agonist)) ', L5-PC: ' num2str(length(ind_mGluR3KO_L5_nn_Glu_agonist))])
+class_layer_KO_agon = unique(Data_KO_agon{1,3});
+disp(['The following layers are present for KO/agonist: ', strjoin(class_layer_KO_agon,', ')])
+class_species_KO_agon = unique(Data_KO_agon{1,4});
+disp(['The recordings come from the follwoing species: ', strjoin(class_species_KO_agon,', ')])
+
+##### SOURCE END #####
+--></body></html>

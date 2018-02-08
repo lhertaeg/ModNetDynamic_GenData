@@ -1,0 +1,304 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Computing neuron network (population) properties</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-01-15"><meta name="DC.source" content="CompNeuNetProp.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Computing neuron network (population) properties</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Neuron network model and parameters</a></li><li><a href="#3">Network properties</a></li><li><a href="#6">Analysis of network dynamics</a></li></ul></div><p>The functions needed to compute the properties are in</p><pre class="codeinput">addpath(<span class="string">'Functions\'</span>)
+</pre><h2 id="2">Neuron network model and parameters</h2><p>The network consists of N populations modeled by the aEIF neuron. Each cell <i>i</i> of each population receives an independent, external input with rate <img src="CompNeuNetProp_eq08383031602117067423.png" alt="$x_i$">. Moreover, the populations are connected, and excite or inhibite each other. Therefore, each neuron of the same population receives a total (Gaussian) input with the following mean and variance:</p><p><img src="CompNeuNetProp_eq17222014634603210047.png" alt="$$\mu_i = \sum\limits_{j}^{N} \epsilon_{ij}C_jJ_{ij}\tau_{i}r_j + \epsilon_{ix}C_xJ_{ix}\tau_{i}x_i, $$"></p><p><img src="CompNeuNetProp_eq04514899586113690269.png" alt="$$\sigma_i^2 = \sum\limits_{j}^{N} \epsilon_{ij}C_jJ^2_{ij}\tau_{i}r_j + \epsilon_{ix}C_xJ^2_{ix}\tau_{i}x_i. $$"></p><p>The parameter <img src="CompNeuNetProp_eq05649792678098733303.png" alt="$\epsilon_{ij}$"> denotes the connection probability from population <i>j</i> to <i>i</i>, whereby <img src="CompNeuNetProp_eq07587880102203461946.png" alt="$J_{ij}$"> represents the respective weights (related to PSPs). <img src="CompNeuNetProp_eq17186685534178204274.png" alt="$C_j$"> describes the number of cells within population <i>j</i>.</p><p>We set the neural parameters and the connections as follows:</p><pre class="codeinput">ModPar = [10.0,5.0,-70.0,2.0,-50.0,-70.0,-20.0,5.0,100.0;
+          5.0,5.0,-70.0,2.0,-50.0,-70.0,-20.0,10.0,50.0];
+
+ConPar.R = [0.1,0.6,1.0;0.5,0.5,1.0];
+ConPar.NN = [3000,750,1000];
+ConPar.J = [0.3,-1.5,0.5;1.0,-1.0,0.5];
+</pre><h2 id="3">Network properties</h2><p>We define the external stimulation for each population:</p><pre class="codeinput">rx = [6.0,5.0];
+r0 = [1.0,4.0];
+</pre><p>and compute the network properties</p><pre class="codeinput">rates = CompRate_aEIF_Net(ModPar,ConPar,r0,rx,0);
+VarISIs = CompVarISI_aEIF_Net(rates,rx,ModPar,ConPar);
+[Vm,Vv] = CompMemPotStat_aEIF_Net(rates,rx,ModPar,ConPar);
+</pre><p>We summarize the firing rates, the variance of the interspike intervals, mean and variance of the membrane potentials for each population:</p><pre class="codeinput">N = size(ModPar,1);
+names = cell(1,N);
+<span class="keyword">for</span> i=1:N
+    names{i} = [<span class="string">'Pop'</span> num2str(i)];
+<span class="keyword">end</span>
+
+subplot(2,2,1); plot(1:N,rates,<span class="string">'sb'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+set(gca,<span class="string">'xtick'</span>,1:N,<span class="string">'xticklabel'</span>,names)
+xlim([0.5,N+0.5]); ylabel(<span class="string">'rate (Hz)'</span>)
+
+subplot(2,2,2); plot(1:N,sqrt(VarISIs),<span class="string">'sb'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+set(gca,<span class="string">'xtick'</span>,1:N,<span class="string">'xticklabel'</span>,names)
+xlim([0.5,N+0.5]); ylabel(<span class="string">'SD of ISI (s)'</span>)
+
+subplot(2,2,3); plot(1:N,Vm,<span class="string">'sb'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+set(gca,<span class="string">'xtick'</span>,1:N,<span class="string">'xticklabel'</span>,names)
+xlim([0.5,N+0.5]); ylabel(<span class="string">'mean V (mV)'</span>)
+
+subplot(2,2,4); plot(1:N,sqrt(Vv),<span class="string">'sb'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'b'</span>);
+set(gca,<span class="string">'xtick'</span>,1:N,<span class="string">'xticklabel'</span>,names)
+xlim([0.5,N+0.5]); ylabel(<span class="string">'SD of V (mV)'</span>)
+snapnow; close
+</pre><img vspace="5" hspace="5" src="CompNeuNetProp_01.png" alt=""> <h2 id="6">Analysis of network dynamics</h2><p>Around a fixed point, the dynamics of the network is captured sufficiently well by a first-order differential equation (low-pass filter of the steady-state solution):</p><p><img src="CompNeuNetProp_eq16006881604965639118.png" alt="$$ \tau_i \frac{d\nu_i}{dt} = -\nu_i + F_i(\nu)$$"></p><p>where <img src="CompNeuNetProp_eq01332913560433991512.png" alt="$F_i(\nu)$"> denotes the steady-state solution and is given by</p><p><img src="CompNeuNetProp_eq05030415035631226613.png" alt="$$ F_i(\nu)=\left(\frac{2 \tau_m}{\sigma_i^2}\int\limits^{V_\mathrm{up}}_{-\infty}dV\int\limits^{V_\mathrm{up}}_{max(V,V_r)} e^{-\frac{2}{\sigma_i^2} \int\limits^u_V \left(f_i(x) + \mu_i - b\nu_i\tau_w/g_L\right) dx}du\right)^{-1}. $$"></p><p>with <img src="CompNeuNetProp_eq11715397524404330794.png" alt="$f_i(V)=-(V-E_L)+\Delta_T\cdot e^{\frac{V-V_T}{\Delta_T}}$">, and <img src="CompNeuNetProp_eq15347993106352020686.png" alt="$\mu_i$"> as well as <img src="CompNeuNetProp_eq15209116145632355349.png" alt="$\sigma_i^2$"> given above. The nullclines denote the set points in the phase plane where one of the variables is constant (that is, does not change in time). Hence, the <img src="CompNeuNetProp_eq13234458220758956063.png" alt="$\nu_i$">-nullcline is given by</p><p><img src="CompNeuNetProp_eq07275855673420817147.png" alt="$$ 0 = -\nu_i + F_i(\nu)$$"></p><p>where <img src="CompNeuNetProp_eq13234458220758956063.png" alt="$\nu_i$"> is constant.</p><pre class="codeinput">NN = 10;
+Values=zeros(N,NN);
+
+<span class="keyword">for</span> i=1:N
+    Values(i,:) = linspace(max(0.0,0.8*rates(i)),1.2*rates(i),NN);
+<span class="keyword">end</span>
+NullArray = CompNullclines_aEIF_Net(ModPar,ConPar,rates,rx,Values);
+</pre><p>The intersection point(s) of the nullclines signify the fixed point(s) of the system. By linearizing the system's equation around the fixed point(s), we can determine the stability. The stability is given by the real parts of the eigenvalues computed from the Jacobian matrix at the respective FP:</p><p><img src="CompNeuNetProp_eq03204366834362614479.png" alt="$$ \left( \begin{array}{cccc} (\frac{\partial F_1}{\partial\nu_1} - 1)/\tau_1 &amp; \frac{\partial F_1}{\partial\nu_2}/\tau_1 &amp; ... &amp; \frac{\partial F_1}{\partial\nu_n}/\tau_1 \\ \frac{\partial F_2}{\partial\nu_1}/\tau_2 &amp; (\frac{\partial F_2}{\partial\nu_2} - 1)/\tau_2 &amp; ... &amp; \frac{\partial F_2}{\partial\nu_n}/\tau_2 \\ \vdots &amp; \ddots &amp; \vdots &amp; \vdots \\ \frac{\partial F_n}{\partial\nu_1}/\tau_n &amp; ... &amp; \frac{\partial F_n}{\partial\nu_\mathrm{n-1}}/\tau_n &amp; (\frac{\partial F_n}{\partial\nu_n} - 1)/\tau_n \end{array} \right) $$"></p><p>with</p><p><img src="CompNeuNetProp_eq06692275880166421729.png" alt="$$ \frac{\partial F_i}{\partial\nu_j} = \frac{\sigma^2_{\nu_j}}{\sigma_i}\nu_i^* - \frac{4\tau_i(\nu_i^*)^2}{\sigma_i^4} \int\limits^{V_\mathrm{up}}_{-\infty}dV\int\limits^{V_\mathrm{up}}_{max(V,V_r)} du\ e^{-\frac{2}{\sigma_i^2} \int\limits^u_V \left(f_i(x) + \mu_i - w_i\right) dx} \left[\frac{\sigma^2_{\nu_j}}{\sigma_i}\int\limits_V^u (f_i + \mu_i - w_i)dx - (\mu_{\nu_j}-w_{\nu_j}\delta_{ij})(u-V)\right]$$"></p><p>where <img src="CompNeuNetProp_eq09022843682302582048.png" alt="$\nu_i^*$"> denotes the i-th population activity at the fixed point, <img src="CompNeuNetProp_eq09418503477688688337.png" alt="$\mu_{\nu_j}$">, <img src="CompNeuNetProp_eq07668292099669198440.png" alt="$\sigma^2_{\nu_j}$"> and <img src="CompNeuNetProp_eq07722164567986918529.png" alt="$w_{\nu_j}$"> represent the derivative of <img src="CompNeuNetProp_eq15347993106352020686.png" alt="$\mu_i$">, <img src="CompNeuNetProp_eq13807602217871652683.png" alt="$\sigma^2_i$"> and <img src="CompNeuNetProp_eq11174449752623653570.png" alt="$w_i$"> with respect to <img src="CompNeuNetProp_eq15003485610324141767.png" alt="$\nu_j$">, respectively, and <img src="CompNeuNetProp_eq13762402329074210580.png" alt="$\delta_{ij}$"> denotes the Kroneker delta.</p><pre class="codeinput">Lambs = CompEigVal_aEIF_Net(ModPar,ConPar,rates,rx,NullArray,1);
+</pre><p>The vector field is the set of arrows given by the derivatives evaluated at each point in the phase plane.</p><pre class="codeinput">r_x = linspace(Values(1,1),Values(1,end),10);
+r_y = linspace(Values(2,1),Values(2,end),10);
+[x,y] = meshgrid(r_x,r_y);
+[u,v] = CompVecField_aEIF_Net(r_x,r_y,rx,ModPar,ConPar);
+</pre><p>We can summarize the dynamics in a phase plane:</p><pre class="codeinput">figure();
+hold <span class="string">on</span>;
+plot(NullArray(:,1,1),NullArray(:,2,1),<span class="string">'b'</span>)
+plot(NullArray(:,1,2),NullArray(:,2,2),<span class="string">'r'</span>)
+quiver(x,y,u,v,<span class="string">'color'</span>,[0.5,0.5,0.5])
+<span class="keyword">if</span> Lambs&lt;0
+    plot(rates(1),rates(2),<span class="string">'ok'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'k'</span>)
+<span class="keyword">else</span>
+    plot(rates(1),rates(2),<span class="string">'ok'</span>)
+<span class="keyword">end</span>
+xlabel(<span class="string">'1st population activity (sp/s)'</span>)
+ylabel(<span class="string">'2nd population activity (sp/s)'</span>)
+snapnow; close
+</pre><img vspace="5" hspace="5" src="CompNeuNetProp_02.png" alt=""> <p>Moreover, we can translate the 'phase plane/vector field' into an energy landscape to visualize the stability of a FP. In case of a one-dimensional system, the energy <img src="CompNeuNetProp_eq02619125812656254059.png" alt="$U$"> is given by (Deco, 2009)</p><p><img src="CompNeuNetProp_eq03209695368042380336.png" alt="$$ U(\nu) = -\frac{1}{\tau} \int\limits_0^{\nu} (F(x)-x)\ dx $$"></p><p>When we are dealing with an N-dimensional system, we keep (N-1) rates constant and vary along the remaining dimension.</p><pre class="codeinput">id = 1;
+values = linspace(max(0.0,0.8*rates(id)),1.2*rates(id),40);
+E = CompEnergy_aEIF_Net(values,ModPar,ConPar,rates,rx,id);
+
+plot(values,E)
+xlabel([<span class="string">'Activity of population '</span> num2str(id) <span class="string">' (sp/s)'</span>])
+ylabel(<span class="string">'Potential landscape (a.u.)'</span>)
+snapnow; close
+</pre><p>Please note that the lower limit of the integral was set to the first entry of the array.</p><img vspace="5" hspace="5" src="CompNeuNetProp_03.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Computing neuron network (population) properties
+%
+%
+%% 
+% The functions needed to compute the properties are in
+addpath('Functions\')
+
+%% Neuron network model and parameters
+%
+% The network consists of N populations modeled by the aEIF neuron. Each
+% cell _i_ of each population receives an independent, external input with rate $x_i$.
+% Moreover, the populations are connected, and excite or inhibite each
+% other. Therefore, each neuron of the same population receives a total
+% (Gaussian) input with the following mean and variance:
+%
+% $$\mu_i = \sum\limits_{j}^{N} \epsilon_{ij}C_jJ_{ij}\tau_{i}r_j + \epsilon_{ix}C_xJ_{ix}\tau_{i}x_i, $$
+%
+% $$\sigma_i^2 = \sum\limits_{j}^{N} \epsilon_{ij}C_jJ^2_{ij}\tau_{i}r_j + \epsilon_{ix}C_xJ^2_{ix}\tau_{i}x_i. $$
+%
+% The parameter $\epsilon_{ij}$ denotes the connection probability from
+% population _j_ to _i_, whereby $J_{ij}$ represents the 
+% respective weights (related to PSPs). $C_j$ describes the number of cells
+% within population _j_.
+%
+% We set the neural parameters and the connections as follows:
+ModPar = [10.0,5.0,-70.0,2.0,-50.0,-70.0,-20.0,5.0,100.0;
+          5.0,5.0,-70.0,2.0,-50.0,-70.0,-20.0,10.0,50.0];
+      
+ConPar.R = [0.1,0.6,1.0;0.5,0.5,1.0];
+ConPar.NN = [3000,750,1000];
+ConPar.J = [0.3,-1.5,0.5;1.0,-1.0,0.5];
+
+%% Network properties
+%
+% We define the external stimulation for each population:
+rx = [6.0,5.0];
+r0 = [1.0,4.0];
+%%% 
+% and compute the network properties
+rates = CompRate_aEIF_Net(ModPar,ConPar,r0,rx,0);
+VarISIs = CompVarISI_aEIF_Net(rates,rx,ModPar,ConPar);
+[Vm,Vv] = CompMemPotStat_aEIF_Net(rates,rx,ModPar,ConPar);
+%%%
+% We summarize the firing rates, the variance of the interspike intervals,
+% mean and variance of the membrane potentials for each population:
+%
+N = size(ModPar,1);
+names = cell(1,N);
+for i=1:N
+    names{i} = ['Pop' num2str(i)];
+end
+
+subplot(2,2,1); plot(1:N,rates,'sb','MarkerFaceColor','b'); 
+set(gca,'xtick',1:N,'xticklabel',names)
+xlim([0.5,N+0.5]); ylabel('rate (Hz)')
+
+subplot(2,2,2); plot(1:N,sqrt(VarISIs),'sb','MarkerFaceColor','b'); 
+set(gca,'xtick',1:N,'xticklabel',names)
+xlim([0.5,N+0.5]); ylabel('SD of ISI (s)')
+
+subplot(2,2,3); plot(1:N,Vm,'sb','MarkerFaceColor','b'); 
+set(gca,'xtick',1:N,'xticklabel',names)
+xlim([0.5,N+0.5]); ylabel('mean V (mV)')
+
+subplot(2,2,4); plot(1:N,sqrt(Vv),'sb','MarkerFaceColor','b'); 
+set(gca,'xtick',1:N,'xticklabel',names)
+xlim([0.5,N+0.5]); ylabel('SD of V (mV)')
+snapnow; close
+
+%% Analysis of network dynamics
+%
+% Around a fixed point, the dynamics of the network is captured 
+% sufficiently well by a first-order differential equation (low-pass
+% filter of the steady-state solution):
+%
+% $$ \tau_i \frac{d\nu_i}{dt} = -\nu_i + F_i(\nu)$$
+%
+% where $F_i(\nu)$ denotes the steady-state solution and is given by
+%
+% $$ F_i(\nu)=\left(\frac{2 \tau_m}{\sigma_i^2}\int\limits^{V_\mathrm{up}}_{-\infty}dV\int\limits^{V_\mathrm{up}}_{max(V,V_r)} e^{-\frac{2}{\sigma_i^2} \int\limits^u_V \left(f_i(x) + \mu_i - b\nu_i\tau_w/g_L\right) dx}du\right)^{-1}. $$
+%
+% with $f_i(V)=-(V-E_L)+\Delta_T\cdot e^{\frac{V-V_T}{\Delta_T}}$, and $\mu_i$
+% as well as $\sigma_i^2$ given above. The nullclines denote the set points
+% in the phase plane where one of the variables is constant (that is, does 
+% not change in time). Hence, the $\nu_i$-nullcline is given by
+%
+% $$ 0 = -\nu_i + F_i(\nu)$$
+%
+% where $\nu_i$ is constant.
+
+NN = 10;
+Values=zeros(N,NN);
+
+for i=1:N
+    Values(i,:) = linspace(max(0.0,0.8*rates(i)),1.2*rates(i),NN);
+end
+NullArray = CompNullclines_aEIF_Net(ModPar,ConPar,rates,rx,Values);
+
+%%% 
+% The intersection point(s) of the nullclines signify the fixed point(s) of the
+% system. By linearizing the system's equation around the fixed point(s),
+% we can determine the stability. The stability is given by the real parts
+% of the eigenvalues computed from the Jacobian matrix at the respective
+% FP:
+%
+% $$ \left( \begin{array}{cccc} (\frac{\partial F_1}{\partial\nu_1} - 1)/\tau_1 & \frac{\partial F_1}{\partial\nu_2}/\tau_1 & ... & \frac{\partial F_1}{\partial\nu_n}/\tau_1 \\ \frac{\partial F_2}{\partial\nu_1}/\tau_2 & (\frac{\partial F_2}{\partial\nu_2} - 1)/\tau_2 & ... & \frac{\partial F_2}{\partial\nu_n}/\tau_2 \\ \vdots & \ddots & \vdots & \vdots \\ \frac{\partial F_n}{\partial\nu_1}/\tau_n & ... & \frac{\partial F_n}{\partial\nu_\mathrm{n-1}}/\tau_n & (\frac{\partial F_n}{\partial\nu_n} - 1)/\tau_n \end{array} \right) $$
+%
+% with 
+%
+% $$ \frac{\partial F_i}{\partial\nu_j} = \frac{\sigma^2_{\nu_j}}{\sigma_i}\nu_i^* - \frac{4\tau_i(\nu_i^*)^2}{\sigma_i^4} \int\limits^{V_\mathrm{up}}_{-\infty}dV\int\limits^{V_\mathrm{up}}_{max(V,V_r)} du\ e^{-\frac{2}{\sigma_i^2} \int\limits^u_V \left(f_i(x) + \mu_i - w_i\right) dx} \left[\frac{\sigma^2_{\nu_j}}{\sigma_i}\int\limits_V^u (f_i + \mu_i - w_i)dx - (\mu_{\nu_j}-w_{\nu_j}\delta_{ij})(u-V)\right]$$
+% 
+% where $\nu_i^*$ denotes the i-th population activity at the fixed point,
+% $\mu_{\nu_j}$, $\sigma^2_{\nu_j}$ and $w_{\nu_j}$ represent the derivative of $\mu_i$, $\sigma^2_i$ and $w_i$ with respect to $\nu_j$, respectively, and $\delta_{ij}$ denotes the Kroneker delta. 
+%
+Lambs = CompEigVal_aEIF_Net(ModPar,ConPar,rates,rx,NullArray,1);
+
+%%%
+% The vector field is the set of arrows given by the derivatives evaluated
+% at each point in the phase plane.
+%
+r_x = linspace(Values(1,1),Values(1,end),10);
+r_y = linspace(Values(2,1),Values(2,end),10);
+[x,y] = meshgrid(r_x,r_y);
+[u,v] = CompVecField_aEIF_Net(r_x,r_y,rx,ModPar,ConPar);
+
+%%%
+% We can summarize the dynamics in a phase plane:
+figure();
+hold on;
+plot(NullArray(:,1,1),NullArray(:,2,1),'b')
+plot(NullArray(:,1,2),NullArray(:,2,2),'r')
+quiver(x,y,u,v,'color',[0.5,0.5,0.5])
+if Lambs<0
+    plot(rates(1),rates(2),'ok','MarkerFaceColor','k')
+else
+    plot(rates(1),rates(2),'ok')
+end
+xlabel('1st population activity (sp/s)')
+ylabel('2nd population activity (sp/s)')
+snapnow; close
+
+%%
+% Moreover, we can translate the 'phase plane/vector field' into an energy 
+% landscape to visualize the stability of a FP. In case of a
+% one-dimensional system, the energy $U$ is given by (Deco, 2009)
+%
+% $$ U(\nu) = -\frac{1}{\tau} \int\limits_0^{\nu} (F(x)-x)\ dx $$
+%
+% When we are dealing with an N-dimensional system, we keep (N-1) rates
+% constant and vary along the remaining dimension.
+%
+id = 1;
+values = linspace(max(0.0,0.8*rates(id)),1.2*rates(id),40);
+E = CompEnergy_aEIF_Net(values,ModPar,ConPar,rates,rx,id);
+
+plot(values,E)
+xlabel(['Activity of population ' num2str(id) ' (sp/s)'])
+ylabel('Potential landscape (a.u.)')
+snapnow; close
+
+%%%
+% Please note that the lower limit of the integral was set to the first
+% entry of the array.
+
+
+##### SOURCE END #####
+--></body></html>
